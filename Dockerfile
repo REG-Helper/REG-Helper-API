@@ -13,19 +13,20 @@ COPY package.json pnpm-lock.yaml ./
 
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm install --frozen-lockfile
 
-FROM deps AS builder
+FROM base AS builder
 
 COPY . .
+COPY --from=deps --chown=node:node /usr/app/node_modules ./node_modules
 
 RUN pnpm run build
 
 FROM node:20-alpine AS runner
 
-WORKDIR /usr/app
-
 USER node
 
-COPY --from=deps /usr/app/node_modules ./node_modules
-COPY --from=builder /usr/app/dist ./dist
+WORKDIR /usr/app
+
+COPY --from=builder --chown=node:node /usr/app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /usr/app/dist ./dist
 
 CMD [ "node", "./dist/main" ]
