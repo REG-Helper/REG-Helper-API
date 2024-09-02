@@ -1,0 +1,17 @@
+services:
+  api:
+    container_name: reg_helper_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - PORT
+      - SECRET_KEY
+    ports:
+      - '${PORT}:${PORT}'
+    networks:
+      - api_network
+
+networks:
+  api_network:
+    driver: bridge
