@@ -8,3 +8,4 @@ Dockerfile
 .eslintrc.js
 README.md
 .husky
+.github
