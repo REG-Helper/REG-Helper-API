@@ -7,6 +7,8 @@ services:
     environment:
       - PORT
       - NODE_ENV
+      - ACCESS_SECRET
+      - ACCESS_EXPIRES_IN
     ports:
       - '${PORT}:${PORT}'
     networks:
