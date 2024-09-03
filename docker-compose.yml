@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     environment:
       - PORT
-      - SECRET_KEY
+      - NODE_ENV
     ports:
       - '${PORT}:${PORT}'
     networks:
