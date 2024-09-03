@@ -10,6 +10,8 @@ on:
 env:
   PORT: ${{ secrets.PORT }}
   NODE_ENV: ${{ secrets.NODE_ENV }}
+  ACCESS_SECRET: ${{ secrets.ACCESS_SECRET }}
+  ACCESS_EXPIRES_IN: ${{ secrets.ACCESS_EXPIRES_IN }}
 
 jobs:
   deploy:
