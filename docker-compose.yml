@@ -13,6 +13,7 @@ services:
       - '${PORT}:${PORT}'
     networks:
       - api_network
+    restart: always
 
 networks:
   api_network:
