@@ -1,0 +1,9 @@
+model UserCourses {
+  id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id])
+  userId   String
+  user     User   @relation(fields: [userId], references: [studentId])
+
+  @@index([userId, courseId])
+}

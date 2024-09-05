@@ -12,6 +12,7 @@ env:
   NODE_ENV: ${{ secrets.NODE_ENV }}
   ACCESS_SECRET: ${{ secrets.ACCESS_SECRET }}
   ACCESS_EXPIRES_IN: ${{ secrets.ACCESS_EXPIRES_IN }}
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
 jobs:
   deploy:
