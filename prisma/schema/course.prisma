@@ -1,0 +1,13 @@
+model Course {
+  id            String        @id
+  nameEn        String
+  nameTh        String
+  descriptionEn String
+  descriptionTh String
+  credit        Int
+  creditStr     String
+  type          CourseType
+  group         CourseGroup
+  Section       Section[]
+  UserCourse    UserCourses[]
+}

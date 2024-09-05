@@ -1,0 +1,17 @@
+model Section {
+  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String
+  day             String
+  room            String
+  limit           Int
+  count           Int
+  queueLeft       Int
+  preCount        Int
+  midtermExamDate DateTime
+  finalExamDate   DateTime
+  condition       String?
+  sectionTimes    SectionTime[]
+  courseId        String
+  course          Course            @relation(fields: [courseId], references: [id])
+  SectionTeachers SectionTeachers[]
+}

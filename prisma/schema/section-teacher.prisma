@@ -1,0 +1,9 @@
+model SectionTeachers {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sectionId String  @db.Uuid
+  section   Section @relation(fields: [sectionId], references: [id])
+  teacherId String  @db.Uuid
+  teacher   Teacher @relation(fields: [teacherId], references: [id])
+
+  @@index([teacherId, sectionId])
+}
