@@ -30,5 +30,6 @@ WORKDIR /usr/app
 
 COPY --from=builder --chown=node:node /usr/app/node_modules ./node_modules
 COPY --from=builder --chown=node:node /usr/app/dist ./dist
+COPY --from=builder --chown=node:node /usr/app/prisma ./prisma
 
 CMD [ "node", "./dist/main" ]
