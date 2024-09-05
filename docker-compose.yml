@@ -9,6 +9,7 @@ services:
       - NODE_ENV
       - ACCESS_SECRET
       - ACCESS_EXPIRES_IN
+      - DATABASE_URL
     ports:
       - '${PORT}:${PORT}'
     networks:

@@ -7,6 +7,7 @@ export const envSchema = z.object({
   NODE_ENV: z.nativeEnum(Environment).default(Environment.DEVELOPMENT),
   ACCESS_SECRET: z.string(),
   ACCESS_EXPIRES_IN: z.string(),
+  DATABASE_URL: z.string(),
 });
 
 export type Env = z.infer<typeof envSchema>;
