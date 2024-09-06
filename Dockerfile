@@ -31,8 +31,5 @@ WORKDIR /usr/app
 COPY --from=builder --chown=node:node /usr/app/node_modules ./node_modules
 COPY --from=builder --chown=node:node /usr/app/dist ./dist
 COPY --from=builder --chown=node:node /usr/app/prisma ./prisma
-COPY --from=builder --chown=node:node /usr/app/package.json ./package.json
-
-RUN npx prisma migrate deploy
 
 CMD ["node", "dist/main"]
