@@ -1,5 +1,6 @@
 import { ValidationPipe } from '@nestjs/common';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
 
@@ -20,6 +21,11 @@ async function bootstrap() {
     }),
   );
   app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
+
+  const config = new DocumentBuilder().setTitle('Reg Helper API').addBearerAuth().build();
+  const document = SwaggerModule.createDocument(app, config);
+
+  SwaggerModule.setup('document', app, document);
 
   await app.listen(port);
 }
