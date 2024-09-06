@@ -1,8 +1,8 @@
 model User {
   studentId     String        @id
-  firstname     String
-  lastname      String
-  profileImage  String
+  firstname     String?
+  lastname      String?
+  profileImage  String  
   googleOauthId String        @unique
   email         String        @unique
   transcript    Transcript?

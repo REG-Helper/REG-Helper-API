@@ -10,12 +10,13 @@ services:
       - ACCESS_SECRET
       - ACCESS_EXPIRES_IN
       - DATABASE_URL
+      - GOOGLE_CLIENT_ID
+      - GOOGLE_CLIENT_SECRET
     ports:
       - '${PORT}:${PORT}'
     networks:
       - api_network
     restart: always
-    entrypoint: ['sh', '-c', 'npx prisma migrate deploy && npx prisma db push']
 
 networks:
   api_network:
