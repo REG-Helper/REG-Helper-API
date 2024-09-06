@@ -17,6 +17,7 @@ services:
     networks:
       - api_network
     restart: always
+    command: sh -c "npx prisma migrate deploy && node dist/main"
 
 networks:
   api_network:
