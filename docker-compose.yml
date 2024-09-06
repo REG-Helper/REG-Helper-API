@@ -17,7 +17,7 @@ services:
     networks:
       - api_network
     restart: always
-    entrypoint: ['sh', '-c', 'npx prisma migrate deploy && npx prisma db push']
+    entrypoint: ['sh', '-c', 'npx prisma migrate deploy']
 
 networks:
   api_network:
