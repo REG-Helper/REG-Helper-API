@@ -33,4 +33,6 @@ COPY --from=builder --chown=node:node /usr/app/dist ./dist
 COPY --from=builder --chown=node:node /usr/app/prisma ./prisma
 COPY --from=builder --chown=node:node /usr/app/package.json ./package.json
 
-CMD [ "npm", "run", "start:prod" ]
+RUN npx prisma migrate deploy
+
+CMD ["node", "dist/main"]
