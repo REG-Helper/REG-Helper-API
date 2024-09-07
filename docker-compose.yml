@@ -12,6 +12,12 @@ services:
       - DATABASE_URL
       - GOOGLE_CLIENT_ID
       - GOOGLE_CLIENT_SECRET
+      - MINIO_ENDPOINT
+      - MINIO_BUCKET
+      - MINIO_PORT
+      - MINIO_ACCESS_KEY
+      - MINIO_SECRET_KEY
+      - MINIO_USE_SSL
     ports:
       - '${PORT}:${PORT}'
     networks:
