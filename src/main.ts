@@ -1,15 +1,11 @@
 import { ValidationPipe } from '@nestjs/common';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'; // Import the DocumentBuilder and SwaggerModule
-
-import * as express from 'express'  
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
 
 import { PrismaClientExceptionFilter } from '@/common/filters';
 import { EnvService } from '@/modules/env/env.service';
-
-
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -30,7 +26,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
 
   SwaggerModule.setup('document', app, document);
-  
+
   await app.listen(port);
 }
 
