@@ -1,25 +1,28 @@
 services:
-  api:
-    container_name: reg_helper_api
-    build:
-      context: .
-      dockerfile: Dockerfile
-    environment:
-      - PORT
-      - NODE_ENV
-      - ACCESS_SECRET
-      - ACCESS_EXPIRES_IN
-      - DATABASE_URL
-      - GOOGLE_CLIENT_ID
-      - GOOGLE_CLIENT_SECRET
-    ports:
-      - '${PORT}:${PORT}'
-    networks:
-      - api_network
+  db:
+    image: postgres
+    container_name: db
     restart: always
-    command: >
-      sh -c "npx prisma migrate deploy && node dist/main"
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: user-name
+      POSTGRES_PASSWORD: strong-password
+    volumes:
+      - local_pgdata:/var/lib/postgresql/data
 
-networks:
-  api_network:
-    driver: bridge
+  minio:
+    image: quay.io/minio/minio
+    command: server /data --console-address ":9001"
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    environment:
+      - MINIO_ROOT_USER=user-name
+      - MINIO_ROOT_PASSWORD=strong-password
+    volumes:
+      - minio-data:/data
+
+volumes:
+  local_pgdata:
+  minio-data:
