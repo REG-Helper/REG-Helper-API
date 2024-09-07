@@ -15,6 +15,12 @@ env:
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
   GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
   GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+  MINIO_ENDPOINT: ${{ secrets.MINIO_ENDPOINT }}
+  MINIO_BUCKET: ${{ secrets. MINIO_BUCKET }}
+  MINIO_PORT: ${{ secrets.MINIO_PORT }}
+  MINIO_ACCESS_KEY: ${{ secrets.MINIO_ACCESS_KEY }}
+  MINIO_SECRET_KEY: ${{ secrets.MINIO_SECRET_KEY }}
+  MINIO_USE_SSL: ${{ secrets.MINIO_USE_SSL }}
 
 jobs:
   deploy:
