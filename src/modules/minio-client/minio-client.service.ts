@@ -11,8 +11,6 @@ import * as Minio from 'minio';
 
 import { EnvService } from '../env/env.service';
 
-import { MINIO_FOLDER } from '@/shared/constants';
-
 @Injectable()
 export class MinioClientService {
   private readonly minioClient: Minio.Client;
@@ -29,10 +27,7 @@ export class MinioClientService {
 
   private readonly bucketName = this.envService.get('MINIO_BUCKET');
 
-  async upload(
-    file: Express.Multer.File,
-    directoryName?: keyof typeof MINIO_FOLDER,
-  ): Promise<string> {
+  async upload(file: Express.Multer.File, directoryName?: string): Promise<string> {
     if (!file?.buffer || !file.originalname) {
       throw new BadRequestException();
     }

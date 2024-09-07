@@ -1,25 +1,28 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 
-import pdfParse from 'pdf-parse';
+import * as pdfParse from 'pdf-parse';
+
+import { MinioClientService } from '../minio-client/minio-client.service';
 
 @Injectable()
 export class TranscriptService {
+  constructor(private readonly minioClientService: MinioClientService) {}
+
   async uploadTranscript(file: Express.Multer.File) {
-    const transcriptFull = await pdfParse(file.buffer);
-    const transcript = transcriptFull.text;
+    const parsedTranscript = await pdfParse(file.buffer);
+    const transcript = parsedTranscript.text;
 
     if (!transcript) {
-      return { success: false, message: 'Invalid file' };
+      throw new BadRequestException(`Can't parse transcript file`);
     }
 
-    // eslint-disable-next-line sonarjs/slow-regex
-    const userName: string | null = /Name\s+(.+)\n/.exec(transcript)?.[1] ?? '';
-    // eslint-disable-next-line sonarjs/slow-regex
-    const dateOfBirth: string | null = /Date of Birth\s+(.+)Student/.exec(transcript)?.[1] ?? '';
-    // eslint-disable-next-line sonarjs/slow-regex
-    const studentId: string | null = /Student ID +(.+)\n/.exec(transcript)?.[1] ?? '';
-    const degree: string | null = /Degree\s+(.+)/.exec(transcript)?.[1] ?? '';
-    const major: string | null = /Major\s+(.+)/.exec(transcript)?.[1] ?? '';
+    const userName: string | null = /Name\s+([^\n]+)/.exec(transcript)?.[1] ?? '';
+    const dateOfBirth: string | null =
+      /Date of Birth\s+([^\s]+)\s+Student/.exec(transcript)?.[1] ?? '';
+
+    const studentId: string | null = /Student ID\s+(\d+)/.exec(transcript)?.[1] ?? '';
+    const degree: string | null = /Degree\s+([^\n]+)/.exec(transcript)?.[1] ?? '';
+    const major: string | null = /Major\s+([^\n]+)/.exec(transcript)?.[1] ?? '';
     // eslint-disable-next-line sonarjs/slow-regex
     const regex = /(\d{8})(.*?)(\d)([ABCDEFWS]\+?)/g;
     const user = {
@@ -30,33 +33,18 @@ export class TranscriptService {
       major,
     };
 
-    user.dateOfBirth = dateOfBirth;
-    user.studentId = parseInt(studentId);
-    user.degree = degree;
-    user.major = major;
+    console.log(user);
 
     const matches = transcript.matchAll(regex);
-    const courses: Array<object> = [];
-
-    class Course {
-      constructor(
-        public code: number,
-        public name: string,
-        public credit: number,
-        public grade: string,
-      ) {}
-    }
+    const courses: Array<{ id: number; name: string; credit: number; grade: string }> = [];
 
     for (const match of matches) {
-      const course = new Course(0, '', 0, '');
-
-      //to do check code to database
-
-      course.credit = parseInt(match[3]);
-      course.code = parseInt(match[1]);
-      course.grade = match[4];
-      course.name = match[2];
-      courses.push(course);
+      courses.push({
+        id: parseInt(match[1]),
+        name: match[2],
+        credit: parseInt(match[3]),
+        grade: match[4],
+      });
     }
 
     return courses;

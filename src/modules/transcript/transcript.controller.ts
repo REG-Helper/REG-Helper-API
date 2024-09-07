@@ -1,18 +1,34 @@
-import { Controller, Post } from '@nestjs/common';
+import {
+  Controller,
+  FileTypeValidator,
+  MaxFileSizeValidator,
+  ParseFilePipe,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 import { TranscriptService } from './transcript.service';
 
 @Controller('transcript')
 export class TranscriptController {
   constructor(private readonly transcriptService: TranscriptService) {}
+
   @Post('upload')
-  async uploadTranscript(file: Express.Multer.File) {
-    if (!file) {
-      return { success: false, message: 'Invalid file' };
-    }
-
-    const res = await this.transcriptService.uploadTranscript(file);
-
-    return { success: true, data: res };
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadTranscript(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }), // 10 MB
+          new FileTypeValidator({ fileType: 'application/pdf' }),
+        ],
+        fileIsRequired: true,
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    return this.transcriptService.uploadTranscript(file);
   }
 }
