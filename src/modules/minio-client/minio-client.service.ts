@@ -63,4 +63,14 @@ export class MinioClientService {
 
     return fileUrl;
   }
+
+  async deleteFile(filename: string): Promise<void> {
+    try {
+      await this.minioClient.removeObject(this.bucketName, filename);
+    } catch (error) {
+      console.error(error);
+
+      throw new ServiceUnavailableException('Failed to delete file');
+    }
+  }
 }
