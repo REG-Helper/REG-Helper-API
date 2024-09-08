@@ -16,15 +16,17 @@ export class TranscriptService {
       throw new BadRequestException(`Can't parse transcript file`);
     }
 
-    const userName: string | null = /Name\s+([^\n]+)/.exec(transcript)?.[1] ?? '';
-    const dateOfBirth: string | null =
-      /Date of Birth\s+([^\s]+)\s+Student/.exec(transcript)?.[1] ?? '';
-
-    const studentId: string | null = /Student ID\s+(\d+)/.exec(transcript)?.[1] ?? '';
-    const degree: string | null = /Degree\s+([^\n]+)/.exec(transcript)?.[1] ?? '';
-    const major: string | null = /Major\s+([^\n]+)/.exec(transcript)?.[1] ?? '';
+    const [userData, , couresData] = transcript.split('CREDITGRADE');
     // eslint-disable-next-line sonarjs/slow-regex
-    const regex = /(\d{8})(.*?)(\d)([ABCDEFWS]\+?)/g;
+    const userName: string = userData.match(/Name\s+(.+)\n/)?.[1] ?? '';
+    // eslint-disable-next-line sonarjs/slow-regex
+    const dateOfBirth: string = userData.match(/Date of Birth\s+(.+)Student/)?.[1] ?? '';
+    const studentId: string = userData.match(/Student ID\s+(\d+)/)?.[1] ?? '';
+    // eslint-disable-next-line sonarjs/slow-regex
+    const degree: string = userData.match(/Degree\s+(.+)\n/)?.[1] ?? '';
+    // eslint-disable-next-line sonarjs/slow-regex
+    const major: string = userData.match(/Major\s+(.+)\n/)?.[1] ?? '';
+    const courseRegex = /(\d{8})(.*?\d?)(\d)([ABCDEFWS]+?)?/g;
     const user = {
       name: userName,
       dateOfBirth,
@@ -33,9 +35,7 @@ export class TranscriptService {
       major,
     };
 
-    console.log(user);
-
-    const matches = transcript.matchAll(regex);
+    const matches = couresData.matchAll(courseRegex);
     const courses: Array<{ id: number; name: string; credit: number; grade: string }> = [];
 
     for (const match of matches) {
@@ -47,6 +47,6 @@ export class TranscriptService {
       });
     }
 
-    return courses;
+    return { user, courses };
   }
 }
