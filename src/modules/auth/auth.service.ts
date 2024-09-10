@@ -14,7 +14,7 @@ import { UsersService } from '../users/users.service';
 
 import { AuthResponseDto, GoogleLoginDto } from './dto';
 
-import { KMITL_EMAIL_DOMAIN, KMITL_EMAIL_FORMAT } from '@/shared/constants';
+import { KMITL_EMAIL_DOMAIN, KMITL_EMAIL_REGEX } from '@/shared/constants';
 import { IJwtPayload } from '@/shared/interfaces';
 
 @Injectable()
@@ -63,7 +63,7 @@ export class AuthService {
   }
 
   async register(payload: TokenPayload): Promise<AuthResponseDto> {
-    const match = payload.email?.match(KMITL_EMAIL_FORMAT);
+    const match = payload.email?.match(KMITL_EMAIL_REGEX);
 
     if (!match) {
       throw new BadRequestException();

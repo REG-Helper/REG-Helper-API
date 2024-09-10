@@ -4,6 +4,8 @@ import * as pdfParse from 'pdf-parse';
 
 import { MinioClientService } from '../minio-client/minio-client.service';
 
+import { parseDataFromTranscript } from '@/shared/utils';
+
 @Injectable()
 export class TranscriptService {
   constructor(private readonly minioClientService: MinioClientService) {}
@@ -16,37 +18,11 @@ export class TranscriptService {
       throw new BadRequestException(`Can't parse transcript file`);
     }
 
-    const [userData, , couresData] = transcript.split('CREDITGRADE');
-    // eslint-disable-next-line sonarjs/slow-regex
-    const userName: string = userData.match(/Name\s+(.+)\n/)?.[1] ?? '';
-    // eslint-disable-next-line sonarjs/slow-regex
-    const dateOfBirth: string = userData.match(/Date of Birth\s+(.+)Student/)?.[1] ?? '';
-    const studentId: string = userData.match(/Student ID\s+(\d+)/)?.[1] ?? '';
-    // eslint-disable-next-line sonarjs/slow-regex
-    const degree: string = userData.match(/Degree\s+(.+)\n/)?.[1] ?? '';
-    // eslint-disable-next-line sonarjs/slow-regex
-    const major: string = userData.match(/Major\s+(.+)\n/)?.[1] ?? '';
-    const courseRegex = /(\d{8})(.*?\d?)(\d)([ABCDEFWS]+?)?/g;
-    const user = {
-      name: userName,
-      dateOfBirth,
-      studentId: parseInt(studentId),
-      degree,
-      major,
+    const { user, courses } = parseDataFromTranscript(transcript);
+
+    return {
+      user,
+      courses,
     };
-
-    const matches = couresData.matchAll(courseRegex);
-    const courses: Array<{ id: number; name: string; credit: number; grade: string }> = [];
-
-    for (const match of matches) {
-      courses.push({
-        id: parseInt(match[1]),
-        name: match[2],
-        credit: parseInt(match[3]),
-        grade: match[4],
-      });
-    }
-
-    return { user, courses };
   }
 }
