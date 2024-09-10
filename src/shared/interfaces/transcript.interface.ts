@@ -1,5 +1,6 @@
 export interface ITranscriptUser {
-  name: string;
+  firstname: string;
+  lastname: string;
   dateOfBirth: string;
   studentId: string;
   degree: string;

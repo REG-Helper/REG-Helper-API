@@ -8,8 +8,10 @@ export const parseDataFromTranscript = (transcriptText: string): ITranscriptData
     throw new Error('Invalid transcript format');
   }
 
+  const name = extractUserInfo(userSection, USER_INFO_REGEX.name).split(' ');
   const user: ITranscriptUser = {
-    name: extractUserInfo(userSection, USER_INFO_REGEX.name),
+    firstname: name[1],
+    lastname: name[2],
     dateOfBirth: extractUserInfo(userSection, USER_INFO_REGEX.dateOfBirth),
     studentId: extractUserInfo(userSection, USER_INFO_REGEX.studentId),
     degree: extractUserInfo(userSection, USER_INFO_REGEX.degree),

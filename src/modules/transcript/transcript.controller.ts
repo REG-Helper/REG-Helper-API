@@ -5,19 +5,27 @@ import {
   ParseFilePipe,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
+import { User } from '@prisma/client';
+
 import { TranscriptService } from './transcript.service';
+
+import { CurrentUser } from '@/common/decorators';
+import { AccessTokenGuard } from '@/common/guards';
 
 @Controller('transcript')
 export class TranscriptController {
   constructor(private readonly transcriptService: TranscriptService) {}
 
   @Post('upload')
+  @UseGuards(AccessTokenGuard)
   @UseInterceptors(FileInterceptor('file'))
   async uploadTranscript(
+    @CurrentUser() user: User,
     @UploadedFile(
       new ParseFilePipe({
         validators: [
@@ -29,6 +37,6 @@ export class TranscriptController {
     )
     file: Express.Multer.File,
   ) {
-    return this.transcriptService.uploadTranscript(file);
+    return this.transcriptService.uploadTranscript(user, file);
   }
 }
