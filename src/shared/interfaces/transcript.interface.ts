@@ -1,15 +1,14 @@
 export interface ITranscriptUser {
   firstname: string;
   lastname: string;
-  dateOfBirth: string;
+  dateOfBirth: Date;
   studentId: string;
   degree: string;
   major: string;
 }
 
 export interface ITranscriptCourse {
-  id: number;
-  name?: string;
+  id: string;
   credit: number;
   grade: string;
 }

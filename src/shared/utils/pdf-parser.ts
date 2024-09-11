@@ -9,10 +9,11 @@ export const parseDataFromTranscript = (transcriptText: string): ITranscriptData
   }
 
   const name = extractUserInfo(userSection, USER_INFO_REGEX.name).split(' ');
+  const dateOfBirth = extractUserInfo(userSection, USER_INFO_REGEX.dateOfBirth);
   const user: ITranscriptUser = {
     firstname: name[1],
-    lastname: name[2],
-    dateOfBirth: extractUserInfo(userSection, USER_INFO_REGEX.dateOfBirth),
+    lastname: name[3],
+    dateOfBirth: new Date(dateOfBirth),
     studentId: extractUserInfo(userSection, USER_INFO_REGEX.studentId),
     degree: extractUserInfo(userSection, USER_INFO_REGEX.degree),
     major: extractUserInfo(userSection, USER_INFO_REGEX.major),
@@ -20,10 +21,10 @@ export const parseDataFromTranscript = (transcriptText: string): ITranscriptData
 
   const courseMatches = courseSection.matchAll(COURSE_REGEX);
   const courses = Array.from(courseMatches).map(match => {
-    const [, idStr, , creditStr, grade = ''] = match;
+    const [, id, , creditStr, grade = ''] = match;
 
     return {
-      id: parseInt(idStr, 10),
+      id: id.trim(),
       credit: parseInt(creditStr, 10),
       grade: grade.trim(),
     };

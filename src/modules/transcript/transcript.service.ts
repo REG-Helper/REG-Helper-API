@@ -48,6 +48,7 @@ export class TranscriptService {
     });
 
     return {
+      extractUser,
       updatedUser,
       courses,
     };
