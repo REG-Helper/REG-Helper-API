@@ -7,6 +7,8 @@ import { MinioClientService } from '../minio-client/minio-client.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 
+import { UploadTranscriptResponseDto } from './dto';
+
 import { MINIO_FOLDER } from '@/shared/constants';
 import { parseDataFromTranscript } from '@/shared/utils';
 
@@ -26,7 +28,7 @@ export class TranscriptService {
       throw new BadRequestException(`Can't parse transcript file`);
     }
 
-    const { user: extractUser, courses } = parseDataFromTranscript(transcriptText);
+    const { user: extractUser } = parseDataFromTranscript(transcriptText);
     // Check courses is exist in database
     const updatedUser = await this.usersService.updateUser({
       where: { studentId: user.studentId },
@@ -37,8 +39,7 @@ export class TranscriptService {
     });
 
     const uploadedTranscript = await this.minioClientService.upload(file, MINIO_FOLDER.transcript);
-
-    await this.createTranscript({
+    const createdTranscript = await this.createTranscript({
       url: uploadedTranscript,
       user: {
         connect: {
@@ -47,11 +48,10 @@ export class TranscriptService {
       },
     });
 
-    return {
-      extractUser,
+    return UploadTranscriptResponseDto.formatUploadTranscriptReponse(
+      createdTranscript,
       updatedUser,
-      courses,
-    };
+    );
   }
 
   async createTranscript(data: Prisma.TranscriptCreateInput): Promise<Transcript> {

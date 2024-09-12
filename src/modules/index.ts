@@ -15,3 +15,5 @@ export * from './teachers/teachers.module';
 export * from './transcript/transcript.module';
 
 export * from './minio-client/minio-client.module';
+
+export * from './oauth/oauth.module';

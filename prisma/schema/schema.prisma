@@ -16,3 +16,7 @@ enum CourseType {
 enum CourseGroup {
   GENED
 }
+
+enum OAuthProvider {
+  GOOGLE
+}

@@ -30,6 +30,12 @@ export class AuthService {
     clientSecret: this.envService.get('GOOGLE_CLIENT_SECRET'),
   });
 
+  async generateGoogleLoginLink() {
+    return {
+      url: '',
+    };
+  }
+
   async googleLogin(googleLoginDto: GoogleLoginDto): Promise<AuthResponseDto> {
     const { token } = googleLoginDto;
     const googleOauthProfile = await this.verifyGoogleOauthToken(token);
@@ -69,17 +75,7 @@ export class AuthService {
       throw new BadRequestException();
     }
 
-    const studentId = match[1];
-    const createdUser = await this.usersService.createUser({
-      email: payload.email,
-      studentId,
-      googleOauthId: payload.sub,
-      profileImage: payload.picture,
-    } as User);
-
-    const accessToken = this.generateAccessToken(createdUser.studentId);
-
-    return AuthResponseDto.formatAuthResponse({ user: createdUser, accessToken });
+    return AuthResponseDto.formatAuthResponse({ user: {} as User, accessToken: '' });
   }
 
   private async verifyGoogleOauthToken(idToken: string): Promise<TokenPayload | undefined> {

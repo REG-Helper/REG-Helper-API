@@ -1,10 +1,10 @@
 model User {
-  studentId     String        @id
+  studentId     String              @id
   firstname     String?
   lastname      String?
-  profileImage  String        @default("https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png")
-  googleOauthId String        @unique
-  email         String        @unique
+  profileImage  String              @default("https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png")
+  email         String              @unique
   transcript    Transcript?
   UserCourses   UserCourses[]
+  oauthProvider UserOauthProvider[]
 }

@@ -15,7 +15,8 @@ export const envSchema = z.object({
   MINIO_BUCKET: z.string().min(1),
   MINIO_ACCESS_KEY: z.string().min(1),
   MINIO_SECRET_KEY: z.string().min(1),
-  MINIO_USE_SSL: z.coerce.boolean(),
+  MINIO_USE_SSL: z.string().transform(value => value.toLowerCase() === 'true'),
+  OAUTH_REDIRECT_URL: z.string().min(1),
 });
 
 export type Env = z.infer<typeof envSchema>;
