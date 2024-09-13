@@ -1,0 +1,8 @@
+model UserOauthProvider {
+  id       String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  provider OAuthProvider @default(GOOGLE)
+  userId   String        
+  user     User          @relation(fields: [userId], references: [studentId])
+
+  @@unique([userId, provider])
+}

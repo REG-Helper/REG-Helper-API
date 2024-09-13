@@ -1,22 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { User } from '@prisma/client';
+
 import { CredentialsResponseDto } from './credentials.dto';
 
 import { UserResponseDto } from '@/modules/users/dto';
-import { IFormatAuthResponseParams } from '@/shared/interfaces';
 
 export class AuthResponseDto {
-  constructor(partial: Partial<AuthResponseDto>) {
-    Object.assign(this, partial);
-  }
-
   @ApiProperty()
   credentials: CredentialsResponseDto;
 
   @ApiProperty()
   user: UserResponseDto;
 
-  static formatAuthResponse({ user, accessToken }: IFormatAuthResponseParams): AuthResponseDto {
+  constructor(partial: Partial<AuthResponseDto>) {
+    Object.assign(this, partial);
+  }
+
+  static formatAuthResponse(user: User, accessToken: string): AuthResponseDto {
     return new AuthResponseDto({
       user: UserResponseDto.formatUserResponse(user),
       credentials: { accessToken },
