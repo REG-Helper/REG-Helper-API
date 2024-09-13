@@ -18,8 +18,9 @@ services:
       - MINIO_ACCESS_KEY
       - MINIO_SECRET_KEY
       - MINIO_USE_SSL
+      - OAUTH_REDIRECT_URL
     ports:
-      - '${PORT}:${PORT}'
+      - '3001:3001'
     networks:
       - api_network
     restart: always
