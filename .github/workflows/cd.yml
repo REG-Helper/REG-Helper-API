@@ -21,6 +21,7 @@ env:
   MINIO_ACCESS_KEY: ${{ secrets.MINIO_ACCESS_KEY }}
   MINIO_SECRET_KEY: ${{ secrets.MINIO_SECRET_KEY }}
   MINIO_USE_SSL: ${{ secrets.MINIO_USE_SSL }}
+  OAUTH_REDIRECT_URL: ${{ secrets.OAUTH_REDIRECT_URL }}
 
 jobs:
   deploy:

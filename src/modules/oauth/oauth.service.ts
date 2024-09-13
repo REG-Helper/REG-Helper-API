@@ -83,7 +83,7 @@ export class OAuthService {
   ): Promise<User> {
     return this.usersService.createUser({
       email: userInfo.email,
-      profileImage: userInfo.picture,
+      profileImage: this.getImageProfile(provider, userInfo),
       studentId,
       oauthProvider: {
         create: {
@@ -118,6 +118,17 @@ export class OAuthService {
         },
       },
     });
+  }
+
+  private getImageProfile(
+    provider: OAuthProvider,
+    userInfo: Record<string, never>,
+  ): string | undefined {
+    if (provider === OAuthProvider.GOOGLE) {
+      return userInfo.picture;
+    }
+
+    return undefined;
   }
 
   private async getUserInfo<T extends Record<string, never>>(
