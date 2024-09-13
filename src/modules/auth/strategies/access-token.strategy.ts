@@ -22,7 +22,11 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt-access-
   }
 
   async validate(payload: IJwtPayload): Promise<User> {
-    const user = await this.usersService.findUser({ studentId: payload.sub });
+    const user = await this.usersService.findUser({
+      where: {
+        studentId: payload.sub,
+      },
+    });
 
     if (!user) {
       throw new UnauthorizedException();

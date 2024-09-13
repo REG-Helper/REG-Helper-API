@@ -7,7 +7,7 @@ import {
   GOOGLE_OAUTH_ENDPOINTS,
   GOOGLE_OAUTH_SCOPE,
   GOOGLE_OAUTH_USER_INFO_URL,
-} from '@/shared/config';
+} from '@/shared/constants';
 import { IAuthParams, IClient, IProvider } from '@/shared/interfaces';
 
 export class OAuthClass {
@@ -36,17 +36,17 @@ export class OAuthClass {
     this.userInfoUrl = this.userInfoUrls.get(provider) as string;
   }
 
-  public get infoUrl(): string {
+  get infoUrl(): string {
     return this.userInfoUrl;
   }
 
-  public get authorizationUrl(): [string, string] {
+  get authorizationUrl(): [string, string] {
     const state = randomBytes(16).toString('hex');
 
     return [this.code.authorizeURL({ ...this.authorization, state }), state];
   }
 
-  public async getToken(code: string): Promise<string> {
+  async getToken(code: string): Promise<string> {
     const result = await this.code.getToken({
       code,
       redirect_uri: this.authorization.redirect_uri,

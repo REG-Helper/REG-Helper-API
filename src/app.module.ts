@@ -1,3 +1,4 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 
 import { AppController } from './app.controller';
@@ -12,7 +13,17 @@ import {
 } from './modules';
 
 @Module({
-  imports: [AuthModule, EnvModule, MinioClientModule, UsersModule, TranscriptModule, OAuthModule],
+  imports: [
+    CacheModule.register({
+      isGlobal: true,
+    }),
+    AuthModule,
+    EnvModule,
+    MinioClientModule,
+    UsersModule,
+    TranscriptModule,
+    OAuthModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

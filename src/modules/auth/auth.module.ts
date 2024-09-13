@@ -13,5 +13,6 @@ import { AccessTokenStrategy } from './strategies';
   imports: [UsersModule, JwtModule, PassportModule, EnvModule],
   controllers: [AuthController],
   providers: [AuthService, AccessTokenStrategy],
+  exports: [AuthService],
 })
 export class AuthModule {}
