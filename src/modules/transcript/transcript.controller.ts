@@ -43,7 +43,7 @@ export class TranscriptController {
       }),
     )
     file: Express.Multer.File,
-  ) {
+  ): Promise<UploadTranscriptResponseDto> {
     return this.transcriptService.uploadTranscript(user, file);
   }
 }

@@ -20,7 +20,10 @@ export class TranscriptService {
     private readonly prisma: PrismaService,
   ) {}
 
-  async uploadTranscript(user: User, file: Express.Multer.File) {
+  async uploadTranscript(
+    user: User,
+    file: Express.Multer.File,
+  ): Promise<UploadTranscriptResponseDto> {
     const parsedTranscript = await pdfParse(file.buffer);
     const transcriptText = parsedTranscript.text;
 
@@ -38,23 +41,44 @@ export class TranscriptService {
       },
     });
 
+    const transcriptExists = await this.findTranscript({ userId: user.studentId });
+
+    if (transcriptExists) {
+      await this.minioClientService.deleteFile(transcriptExists.url);
+    }
+
     const uploadedTranscript = await this.minioClientService.upload(file, MINIO_FOLDER.transcript);
-    const createdTranscript = await this.createTranscript({
-      url: uploadedTranscript,
-      user: {
-        connect: {
-          studentId: user.studentId,
+    const transcript = await this.upsertTranscript({
+      where: {
+        userId: user.studentId,
+      },
+      data: {
+        url: uploadedTranscript,
+        user: {
+          connect: {
+            studentId: user.studentId,
+          },
         },
       },
     });
 
-    return UploadTranscriptResponseDto.formatUploadTranscriptReponse(
-      createdTranscript,
-      updatedUser,
-    );
+    return UploadTranscriptResponseDto.formatUploadTranscriptReponse(transcript, updatedUser);
   }
 
-  async createTranscript(data: Prisma.TranscriptCreateInput): Promise<Transcript> {
-    return this.prisma.transcript.create({ data });
+  async findTranscript(where: Prisma.TranscriptWhereUniqueInput): Promise<Transcript | null> {
+    return this.prisma.transcript.findUnique({ where });
+  }
+
+  async upsertTranscript(params: {
+    where: Prisma.TranscriptWhereUniqueInput;
+    data: Prisma.TranscriptCreateInput;
+  }): Promise<Transcript> {
+    const { where, data } = params;
+
+    return this.prisma.transcript.upsert({
+      where,
+      update: data,
+      create: data,
+    });
   }
 }
