@@ -3,5 +3,5 @@ model Transcript {
   url       String
   createdAt DateTime @default(now())
   userId    String   @unique
-  user      User     @relation(fields: [userId], references: [studentId])
+  user      User     @relation(fields: [userId], references: [studentId], onDelete: Cascade)
 }
