@@ -13,13 +13,17 @@ export class UploadTranscriptResponseDto {
   @ApiProperty()
   user: UserResponseDto;
 
+  constructor(partial: Partial<UploadTranscriptResponseDto>) {
+    Object.assign(this, partial);
+  }
+
   static formatUploadTranscriptReponse(
     transcript: Transcript,
     user: User,
   ): UploadTranscriptResponseDto {
-    return {
-      transcript: TranscriptResponseDto.formatTranscriptResponse(transcript),
+    return new UploadTranscriptResponseDto({
+      transcript,
       user: UserResponseDto.formatUserResponse(user),
-    };
+    });
   }
 }
