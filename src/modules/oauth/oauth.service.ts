@@ -1,6 +1,6 @@
 import { HttpService } from '@nestjs/axios';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { OAuthProvider, User } from '@prisma/client';
 import { AxiosError } from 'axios';
@@ -15,6 +15,7 @@ import { UsersService } from '../users/users.service';
 import { OAuthClass } from './classes';
 import { LoginDto } from './dto';
 
+import { KMITL_EMAIL_DOMAIN } from '@/shared/constants';
 import { IClient } from '@/shared/interfaces';
 import { extractStudentIdFromEmail, getCacheKey } from '@/shared/utils';
 
@@ -49,6 +50,10 @@ export class OAuthService {
   async oauthLogin(provider: OAuthProvider, loginDto: LoginDto): Promise<AuthResponseDto> {
     const userInfo = await this.getUserInfo(provider, loginDto);
     const studentId = extractStudentIdFromEmail(userInfo.email);
+
+    if (userInfo.hd !== KMITL_EMAIL_DOMAIN) {
+      throw new ForbiddenException();
+    }
 
     if (!studentId) {
       throw new UnauthorizedException();

@@ -9,11 +9,11 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { User } from '@prisma/client';
 
-import { UploadTranscriptResponseDto } from './dto';
+import { UploadTranscriptDto, UploadTranscriptResponseDto } from './dto';
 import { TranscriptService } from './transcript.service';
 
 import { CurrentUser } from '@/common/decorators';
@@ -26,6 +26,10 @@ export class TranscriptController {
   constructor(private readonly transcriptService: TranscriptService) {}
 
   @Post('upload')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    type: UploadTranscriptDto,
+  })
   @UseGuards(AccessTokenGuard)
   @UseInterceptors(FileInterceptor('file'))
   @ApiOkResponse({
