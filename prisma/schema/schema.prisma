@@ -17,6 +17,34 @@ enum CourseGroup {
   GENED
 }
 
+enum CourseSubGroup {
+  FREE_ELEC
+  FUND
+  LANG
+  FAC_SPEC
+  GENED_ELEC
+  CORE
+  REQUIRED
+  ELEC_REQ
+  ALT_STUDY
+  MAJOR_ELEC
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
 enum OAuthProvider {
   GOOGLE
 }
