@@ -21,6 +21,8 @@ export class PrismaClientExceptionFilter extends BaseExceptionFilter {
     const prismaError = prismaErrorMappings.get(errorCode);
 
     if (prismaError) {
+      console.error(exception.message);
+
       const { status, message } = prismaError;
 
       response.status(status).json({
