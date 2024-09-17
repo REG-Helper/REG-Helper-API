@@ -1,9 +1,9 @@
 model UserCourses {
   id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   courseId String
-  course   Course @relation(fields: [courseId], references: [id])
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
   userId   String
-  user     User   @relation(fields: [userId], references: [studentId])
+  user     User   @relation(fields: [userId], references: [studentId], onDelete: Cascade)
 
   @@index([userId, courseId])
 }
