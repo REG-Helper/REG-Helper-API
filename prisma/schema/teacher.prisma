@@ -1,8 +1,11 @@
 model Teacher {
   id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  firstnameEn     String
-  lastnameEn      String
+  firstnameEn     String?
+  lastnameEn      String?
   firstnameTh     String
   lastnameTh      String
-  SectionTeachers SectionTeachers[]
+  sectionTeachers SectionTeachers[]
+
+  @@unique([firstnameTh, lastnameTh])
+  @@unique([firstnameEn, lastnameEn])
 }
