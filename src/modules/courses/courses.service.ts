@@ -1,8 +1,9 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
 
 import { CreateCourseDto } from './dto';
+import { CourseResponseDto } from './dto/response/course.dto';
 
 @Injectable()
 export class CoursesService {
@@ -21,7 +22,7 @@ export class CoursesService {
     },
   };
 
-  async createCourse(createCourseDto: CreateCourseDto) {
+  async createCourse(createCourseDto: CreateCourseDto): Promise<CourseResponseDto> {
     const course = await this.prisma.course.findUnique({
       where: {
         id: createCourseDto.id,
@@ -62,6 +63,25 @@ export class CoursesService {
       include: this.baseInclude,
     });
 
-    return createdCourse;
+    return CourseResponseDto.formatCourseResponse(createdCourse);
+  }
+
+  async getCourses(): Promise<CourseResponseDto[]> {
+    const courses = await this.prisma.course.findMany({ include: this.baseInclude });
+
+    return CourseResponseDto.formatCoursesResponse(courses);
+  }
+
+  async getCourse(courseId: string): Promise<CourseResponseDto> {
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+      include: this.baseInclude,
+    });
+
+    if (!course) {
+      throw new NotFoundException('Course not found');
+    }
+
+    return CourseResponseDto.formatCourseResponse(course);
   }
 }

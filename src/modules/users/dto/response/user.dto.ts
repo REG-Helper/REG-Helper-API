@@ -3,10 +3,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 
 export class UserResponseDto {
-  constructor(partial: Partial<UserResponseDto>) {
-    Object.assign(this, partial);
-  }
-
   @ApiProperty({
     example: '65010077',
   })
@@ -31,6 +27,10 @@ export class UserResponseDto {
     example: 'https://example.com/profile.jpg',
   })
   profileImage: string;
+
+  constructor(partial: Partial<UserResponseDto>) {
+    Object.assign(this, partial);
+  }
 
   static formatUserResponse(user: User): UserResponseDto {
     return new UserResponseDto({
