@@ -1,4 +1,4 @@
-import { CourseGroup, CourseType } from '@prisma/client';
+import { CourseGroup, CourseSubGroup, CourseType } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
@@ -50,6 +50,10 @@ export class CreateCourseDto {
   @IsEnum(CourseGroup)
   @IsNotEmpty()
   group: CourseGroup;
+
+  @IsEnum(CourseSubGroup)
+  @IsNotEmpty()
+  subGroup: CourseSubGroup;
 
   @IsNotEmpty()
   @IsArray()
