@@ -1,5 +1,5 @@
 model Course {
-  id            String        @id
+  id            String         @id
   nameEn        String
   nameTh        String
   descriptionEn String
@@ -8,6 +8,7 @@ model Course {
   creditStr     String
   type          CourseType
   group         CourseGroup
-  Section       Section[]
-  UserCourse    UserCourses[]
+  subGroup      CourseSubGroup
+  sections      Section[]
+  userCourses   UserCourses[]
 }

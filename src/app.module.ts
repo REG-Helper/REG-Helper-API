@@ -5,10 +5,15 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import {
   AuthModule,
+  CoursesModule,
   EnvModule,
   MinioClientModule,
   OAuthModule,
+  SectionTimesModule,
+  SectionsModule,
+  TeachersModule,
   TranscriptModule,
+  UserCoursesModule,
   UsersModule,
 } from './modules';
 
@@ -23,6 +28,11 @@ import {
     UsersModule,
     TranscriptModule,
     OAuthModule,
+    CoursesModule,
+    SectionTimesModule,
+    SectionsModule,
+    TeachersModule,
+    UserCoursesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
