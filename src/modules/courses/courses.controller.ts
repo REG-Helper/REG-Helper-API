@@ -23,7 +23,7 @@ export class CoursesController {
     type: CourseResponseDto,
   })
   async updateCourse(
-    @Param(':id') courseId: string,
+    @Param('id') courseId: string,
     @Body() updateCourseDto: UpdateCourseDto,
   ): Promise<CourseResponseDto> {
     return this.coursesService.updateCourse(courseId, updateCourseDto);

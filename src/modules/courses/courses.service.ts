@@ -1,5 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 
+import { Prisma } from '@prisma/client';
+
 import { PrismaService } from '../prisma/prisma.service';
 
 import { CreateCourseDto, UpdateCourseDto } from './dto';
@@ -52,17 +54,21 @@ export class CoursesService {
   ): Promise<CourseResponseDto> {
     await this.getCourse(courseId);
 
+    const sectionsData = updateCourseDto?.sections?.length
+      ? {
+          deleteMany: {},
+          create: this.createSectionsData(updateCourseDto?.sections),
+        }
+      : undefined;
+
     const updatedCourse = await this.prisma.course.update({
       where: {
         id: courseId,
       },
       data: {
         ...updateCourseDto,
-        sections: {
-          deleteMany: {},
-          create: this.createSectionsData(updateCourseDto?.sections),
-        },
-      },
+        ...(sectionsData && { sections: sectionsData }),
+      } as Prisma.CourseUpdateInput,
       include: this.baseInclude,
     });
 
