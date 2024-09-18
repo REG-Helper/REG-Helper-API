@@ -2,7 +2,7 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 
 import { PrismaService } from '../prisma/prisma.service';
 
-import { CreateCourseDto } from './dto';
+import { CreateCourseDto, UpdateCourseDto } from './dto';
 import { CourseResponseDto } from './dto/response/course.dto';
 
 @Injectable()
@@ -37,33 +37,36 @@ export class CoursesService {
       data: {
         ...createCourseDto,
         sections: {
-          create: createCourseDto.sections.map(({ teachers, ...section }) => ({
-            ...section,
-            sectionTimes: {
-              create: section.sectionTimes,
-            },
-            sectionTeachers: {
-              create: teachers.map(teacher => ({
-                teacher: {
-                  connectOrCreate: {
-                    where: {
-                      firstnameTh_lastnameTh: {
-                        firstnameTh: teacher.firstnameTh,
-                        lastnameTh: teacher.lastnameTh,
-                      },
-                    },
-                    create: teacher,
-                  },
-                },
-              })),
-            },
-          })),
+          create: this.createSectionsData(createCourseDto.sections),
         },
       },
       include: this.baseInclude,
     });
 
     return CourseResponseDto.formatCourseResponse(createdCourse);
+  }
+
+  async updateCourse(
+    courseId: string,
+    updateCourseDto: UpdateCourseDto,
+  ): Promise<CourseResponseDto> {
+    await this.getCourse(courseId);
+
+    const updatedCourse = await this.prisma.course.update({
+      where: {
+        id: courseId,
+      },
+      data: {
+        ...updateCourseDto,
+        sections: {
+          deleteMany: {},
+          create: this.createSectionsData(updateCourseDto?.sections),
+        },
+      },
+      include: this.baseInclude,
+    });
+
+    return CourseResponseDto.formatCourseResponse(updatedCourse);
   }
 
   async getCourses(): Promise<CourseResponseDto[]> {
@@ -96,5 +99,29 @@ export class CoursesService {
     });
 
     return CourseResponseDto.formatCourseResponse(deletedCourse);
+  }
+
+  private createSectionsData(sections: UpdateCourseDto['sections']) {
+    return sections?.map(({ teachers, ...section }) => ({
+      ...section,
+      sectionTimes: {
+        create: section.sectionTimes,
+      },
+      sectionTeachers: {
+        create: teachers.map(teacher => ({
+          teacher: {
+            connectOrCreate: {
+              where: {
+                firstnameTh_lastnameTh: {
+                  firstnameTh: teacher.firstnameTh,
+                  lastnameTh: teacher.lastnameTh,
+                },
+              },
+              create: teacher,
+            },
+          },
+        })),
+      },
+    }));
   }
 }
