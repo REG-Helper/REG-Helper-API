@@ -13,6 +13,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
+import { IsValidSubGroupForGroup } from '@/common/decorators';
 import { CreateSectionDto } from '@/modules/sections/dto';
 
 export class CreateCourseDto {
@@ -96,6 +97,7 @@ export class CreateCourseDto {
     example: `${CourseSubGroup.FREE_ELEC} ex. ${Object.values(CourseSubGroup).join(', ')}`,
     required: true,
   })
+  @IsValidSubGroupForGroup()
   @IsEnum(CourseSubGroup)
   @IsNotEmpty()
   subGroup: CourseSubGroup;

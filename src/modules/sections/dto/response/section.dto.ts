@@ -88,7 +88,7 @@ export class SectionResponseDto {
   }
 
   static formatSectionResponse(section: SectionWithTeachersAndTimes): SectionResponseDto {
-    const { sectionTeachers, sectionTimes, ...sectionDetail } = section;
+    const { sectionTeachers, sectionTimes, courseId, ...sectionDetail } = section;
 
     return new SectionResponseDto({
       ...sectionDetail,

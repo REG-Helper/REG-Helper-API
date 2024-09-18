@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { CoursesService } from './courses.service';
-import { CreateCourseDto } from './dto';
+import { CreateCourseDto, UpdateCourseDto } from './dto';
 import { CourseResponseDto } from './dto/response/course.dto';
 
 @Controller('courses')
@@ -18,13 +18,38 @@ export class CoursesController {
     return this.coursesService.createCourse(createCourseDto);
   }
 
+  @Patch(':id')
+  @ApiOkResponse({
+    type: CourseResponseDto,
+  })
+  async updateCourse(
+    @Param('id') courseId: string,
+    @Body() updateCourseDto: UpdateCourseDto,
+  ): Promise<CourseResponseDto> {
+    return this.coursesService.updateCourse(courseId, updateCourseDto);
+  }
+
   @Get()
+  @ApiCreatedResponse({
+    type: [CourseResponseDto],
+  })
   async getCourses(): Promise<CourseResponseDto[]> {
     return this.coursesService.getCourses();
   }
 
   @Get(':id')
+  @ApiCreatedResponse({
+    type: CourseResponseDto,
+  })
   async getCourse(@Param('id') courseId: string): Promise<CourseResponseDto> {
     return this.coursesService.getCourse(courseId);
+  }
+
+  @Delete(':id')
+  @ApiCreatedResponse({
+    type: CourseResponseDto,
+  })
+  async deleteCourse(@Param('id') courseId: string): Promise<CourseResponseDto> {
+    return this.coursesService.deleteCourse(courseId);
   }
 }

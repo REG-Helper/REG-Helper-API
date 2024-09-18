@@ -11,12 +11,12 @@ export class TeacherResponseDto {
   @ApiProperty({
     example: 'John',
   })
-  firstnameEn?: string | null;
+  firstnameEn: string | null;
 
   @ApiProperty({
     example: 'Doe',
   })
-  lastnameEn?: string | null;
+  lastnameEn: string | null;
 
   @ApiProperty({
     example: 'จอห์น',
@@ -33,13 +33,6 @@ export class TeacherResponseDto {
   }
 
   static formatTeacherResponse(teacher: Teacher): TeacherResponseDto {
-    const { firstnameEn, lastnameEn, firstnameTh, lastnameTh } = teacher;
-
-    return new TeacherResponseDto({
-      firstnameEn,
-      firstnameTh,
-      lastnameEn,
-      lastnameTh,
-    });
+    return new TeacherResponseDto(teacher);
   }
 }
