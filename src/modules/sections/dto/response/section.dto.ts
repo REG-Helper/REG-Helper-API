@@ -100,4 +100,8 @@ export class SectionResponseDto {
       ),
     });
   }
+
+  static formatSectionsResponse(sections: SectionWithTeachersAndTimes[]): SectionResponseDto[] {
+    return sections.map(section => this.formatSectionResponse(section));
+  }
 }
