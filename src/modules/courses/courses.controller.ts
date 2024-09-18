@@ -22,7 +22,10 @@ export class CoursesController {
   @ApiOkResponse({
     type: CourseResponseDto,
   })
-  async updateCourse(@Param(':id') courseId: string, @Body() updateCourseDto: UpdateCourseDto) {
+  async updateCourse(
+    @Param(':id') courseId: string,
+    @Body() updateCourseDto: UpdateCourseDto,
+  ): Promise<CourseResponseDto> {
     return this.coursesService.updateCourse(courseId, updateCourseDto);
   }
 
