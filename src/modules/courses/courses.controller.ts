@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 
 import { CoursesService } from './courses.service';
@@ -26,5 +26,10 @@ export class CoursesController {
   @Get(':id')
   async getCourse(@Param('id') courseId: string): Promise<CourseResponseDto> {
     return this.coursesService.getCourse(courseId);
+  }
+
+  @Delete(':id')
+  async deleteCourse(@Param('id') courseId: string): Promise<CourseResponseDto> {
+    return this.coursesService.deleteCourse(courseId);
   }
 }

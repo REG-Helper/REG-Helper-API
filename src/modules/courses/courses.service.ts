@@ -84,4 +84,17 @@ export class CoursesService {
 
     return CourseResponseDto.formatCourseResponse(course);
   }
+
+  async deleteCourse(courseId: string): Promise<CourseResponseDto> {
+    await this.getCourse(courseId);
+
+    const deletedCourse = await this.prisma.course.delete({
+      where: {
+        id: courseId,
+      },
+      include: this.baseInclude,
+    });
+
+    return CourseResponseDto.formatCourseResponse(deletedCourse);
+  }
 }
