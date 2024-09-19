@@ -62,14 +62,6 @@ export class CreateSectionDto {
   count: number;
 
   @ApiProperty({
-    example: 5,
-    required: true,
-  })
-  @IsPositive()
-  @IsNotEmpty()
-  queueLeft: number;
-
-  @ApiProperty({
     example: 1,
     required: true,
   })
@@ -88,12 +80,14 @@ export class CreateSectionDto {
   year: number;
 
   @ApiProperty({
-    example: 5,
+    example: '2024-10-15T09:00:00Z',
     required: true,
+    type: Date,
   })
-  @IsPositive()
+  @IsISO8601()
   @IsNotEmpty()
-  preCount: number;
+  @IsOptional()
+  midtermExamDate?: string;
 
   @ApiProperty({
     example: '2024-10-15T09:00:00Z',
@@ -102,16 +96,8 @@ export class CreateSectionDto {
   })
   @IsISO8601()
   @IsNotEmpty()
-  midtermExamDate: string;
-
-  @ApiProperty({
-    example: '2024-10-15T09:00:00Z',
-    required: true,
-    type: Date,
-  })
-  @IsISO8601()
-  @IsNotEmpty()
-  finalExamDate: string;
+  @IsOptional()
+  finalExamDate?: string;
 
   @ApiProperty({
     example: 'Condition',
