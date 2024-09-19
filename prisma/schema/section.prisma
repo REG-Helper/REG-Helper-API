@@ -7,10 +7,8 @@ model Section {
   semester        Int
   limit           Int
   count           Int
-  queueLeft       Int
-  preCount        Int
-  midtermExamDate DateTime
-  finalExamDate   DateTime
+  midtermExamDate DateTime?
+  finalExamDate   DateTime?
   condition       String?
   sectionTimes    SectionTime[]
   courseId        String

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { CreateTeacherDto, TeacherResponseDto, UpdateTeacherDto } from './dto';
@@ -33,7 +33,7 @@ export class TeachersController {
     return this.teachersService.createTeacher(createTeacherDto);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @ApiOkResponse({
     type: TeacherResponseDto,
   })

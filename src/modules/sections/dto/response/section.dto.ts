@@ -49,24 +49,14 @@ export class SectionResponseDto {
   count: number;
 
   @ApiProperty({
-    example: 5,
-  })
-  queueLeft: number;
-
-  @ApiProperty({
-    example: 10,
-  })
-  preCount: number;
-
-  @ApiProperty({
     example: '2024-10-15T09:00:00.000Z',
   })
-  midtermExamDate: Date;
+  midtermExamDate: Date | null;
 
   @ApiProperty({
     example: '2024-12-20T09:00:00.000Z',
   })
-  finalExamDate: Date;
+  finalExamDate: Date | null;
 
   @ApiProperty({
     example: 'condition',
@@ -99,5 +89,9 @@ export class SectionResponseDto {
         TeacherResponseDto.formatTeacherResponse(sectionTeacher.teacher),
       ),
     });
+  }
+
+  static formatSectionsResponse(sections: SectionWithTeachersAndTimes[]): SectionResponseDto[] {
+    return sections.map(section => this.formatSectionResponse(section));
   }
 }
