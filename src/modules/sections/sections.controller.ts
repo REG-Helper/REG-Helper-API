@@ -1,10 +1,11 @@
 import { Controller, Delete, Get, Param } from '@nestjs/common';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { SectionResponseDto } from './dto';
 import { SectionsService } from './sections.service';
 
 @Controller('sections')
+@ApiTags('sections')
 export class SectionsController {
   constructor(private readonly sectionsService: SectionsService) {}
 
