@@ -22,7 +22,7 @@ export class TeachersController {
     type: TeacherResponseDto,
   })
   async getTeacher(@Param('id') teacherId: string): Promise<TeacherResponseDto> {
-    return this.teachersService.getTeacher(teacherId);
+    return this.teachersService.getTeacherByIdOrThrow(teacherId);
   }
 
   @Post()

@@ -14,7 +14,7 @@ export class TeachersService {
     return this.prisma.teacher.findMany();
   }
 
-  async getTeacher(teacherId: string): Promise<Teacher> {
+  async getTeacherByIdOrThrow(teacherId: string): Promise<Teacher> {
     const teacher = await this.prisma.teacher.findUnique({
       where: {
         id: teacherId,
@@ -29,7 +29,7 @@ export class TeachersService {
   }
 
   async createTeacher(createTeacherDto: CreateTeacherDto): Promise<Teacher> {
-    const teacherExists = await this.checkTeacherExist(createTeacherDto);
+    const teacherExists = await this.checkTeacherExistOrThrow(createTeacherDto);
 
     if (teacherExists) {
       throw new ConflictException('Teacher already exist');
@@ -43,13 +43,9 @@ export class TeachersService {
   }
 
   async updateTeacher(teacherId: string, updateTeacherDto: UpdateTeacherDto): Promise<Teacher> {
-    await this.getTeacher(teacherId);
+    await this.getTeacherByIdOrThrow(teacherId);
 
-    const teacherExists = await this.checkTeacherExist(updateTeacherDto, teacherId);
-
-    if (teacherExists) {
-      throw new ConflictException('Teacher already exists');
-    }
+    await this.checkTeacherExistOrThrow(updateTeacherDto, teacherId);
 
     const updatedTeacher = await this.prisma.teacher.update({
       where: { id: teacherId },
@@ -60,7 +56,7 @@ export class TeachersService {
   }
 
   async deleteTeacher(teacherId: string): Promise<Teacher> {
-    await this.getTeacher(teacherId);
+    await this.getTeacherByIdOrThrow(teacherId);
 
     return this.prisma.teacher.delete({
       where: {
@@ -69,7 +65,7 @@ export class TeachersService {
     });
   }
 
-  private async checkTeacherExist(
+  private async checkTeacherExistOrThrow(
     teacher: CreateTeacherDto | UpdateTeacherDto,
     excludeId?: string,
   ): Promise<Teacher | null> {
@@ -87,6 +83,10 @@ export class TeachersService {
         }),
       },
     });
+
+    if (teacherExists) {
+      throw new ConflictException('Teacher already exists');
+    }
 
     return teacherExists;
   }

@@ -7,6 +7,7 @@ import {
   IsArray,
   IsEnum,
   IsISO8601,
+  IsInt,
   IsNotEmpty,
   IsOptional,
   IsPositive,
@@ -49,15 +50,18 @@ export class CreateSectionDto {
     example: 30,
     required: true,
   })
+  @IsInt()
   @IsPositive()
-  @IsNotEmpty()
-  limit: number;
+  @Min(1)
+  @IsOptional()
+  limit?: number;
 
   @ApiProperty({
     example: 10,
     required: true,
   })
-  @IsPositive()
+  @IsInt()
+  @Min(0)
   @IsNotEmpty()
   count: number;
 
@@ -75,8 +79,9 @@ export class CreateSectionDto {
     required: true,
   })
   @Max(new Date().getFullYear())
-  @Min(new Date().getFullYear() - 5)
+  @Min(new Date().getFullYear() - 20)
   @IsPositive()
+  @IsInt()
   year: number;
 
   @ApiProperty({
