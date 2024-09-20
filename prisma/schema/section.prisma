@@ -7,12 +7,11 @@ model Section {
   semester        Int
   limit           Int
   count           Int
-  queueLeft       Int
-  preCount        Int
-  midtermExamDate DateTime
-  finalExamDate   DateTime
+  midtermExamDate DateTime?
+  finalExamDate   DateTime?
   condition       String?
-  sectionTimes    SectionTime[]
+  startAt         DateTime?         @db.Time()
+  endAt           DateTime?         @db.Time()
   courseId        String
   course          Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
   sectionTeachers SectionTeachers[]

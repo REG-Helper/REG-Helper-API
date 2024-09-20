@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { CreateTeacherDto, TeacherResponseDto, UpdateTeacherDto } from './dto';
 import { TeachersService } from './teachers.service';
@@ -26,14 +26,14 @@ export class TeachersController {
   }
 
   @Post()
-  @ApiOkResponse({
+  @ApiCreatedResponse({
     type: TeacherResponseDto,
   })
   async createTeacher(@Body() createTeacherDto: CreateTeacherDto): Promise<TeacherResponseDto> {
     return this.teachersService.createTeacher(createTeacherDto);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @ApiOkResponse({
     type: TeacherResponseDto,
   })

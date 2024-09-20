@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Section" ALTER COLUMN "endAt" DROP NOT NULL,
+ALTER COLUMN "startAt" DROP NOT NULL;

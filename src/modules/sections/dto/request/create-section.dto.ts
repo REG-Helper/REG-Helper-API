@@ -16,7 +16,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-import { CreateSectionTimeDto } from '@/modules/section-times/dto';
+import { IsDateAfter } from '@/common/decorators';
 import { CreateTeacherDto } from '@/modules/teachers/dto';
 
 export class CreateSectionDto {
@@ -62,14 +62,6 @@ export class CreateSectionDto {
   count: number;
 
   @ApiProperty({
-    example: 5,
-    required: true,
-  })
-  @IsPositive()
-  @IsNotEmpty()
-  queueLeft: number;
-
-  @ApiProperty({
     example: 1,
     required: true,
   })
@@ -88,12 +80,14 @@ export class CreateSectionDto {
   year: number;
 
   @ApiProperty({
-    example: 5,
+    example: '2024-10-15T09:00:00Z',
     required: true,
+    type: Date,
   })
-  @IsPositive()
+  @IsISO8601()
   @IsNotEmpty()
-  preCount: number;
+  @IsOptional()
+  midtermExamDate?: string;
 
   @ApiProperty({
     example: '2024-10-15T09:00:00Z',
@@ -102,16 +96,8 @@ export class CreateSectionDto {
   })
   @IsISO8601()
   @IsNotEmpty()
-  midtermExamDate: string;
-
-  @ApiProperty({
-    example: '2024-10-15T09:00:00Z',
-    required: true,
-    type: Date,
-  })
-  @IsISO8601()
-  @IsNotEmpty()
-  finalExamDate: string;
+  @IsOptional()
+  finalExamDate?: string;
 
   @ApiProperty({
     example: 'Condition',
@@ -122,14 +108,23 @@ export class CreateSectionDto {
   condition?: string;
 
   @ApiProperty({
-    type: [CreateSectionTimeDto],
+    example: '2024-10-15T09:00:00Z',
+    required: false,
+    type: Date,
   })
-  @IsNotEmpty()
-  @IsArray()
-  @ArrayMinSize(1)
-  @ValidateNested({ each: true })
-  @Type(() => CreateSectionTimeDto)
-  sectionTimes: CreateSectionTimeDto[];
+  @IsISO8601()
+  @IsOptional()
+  startAt?: string;
+
+  @ApiProperty({
+    example: '2024-10-15T09:00:00Z',
+    required: false,
+    type: Date,
+  })
+  @IsDateAfter()
+  @IsISO8601()
+  @IsOptional()
+  endAt?: string;
 
   @ApiProperty({
     type: [CreateTeacherDto],

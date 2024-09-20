@@ -19,7 +19,6 @@ export class CoursesService {
             teacher: true,
           },
         },
-        sectionTimes: true,
       },
     },
   };
@@ -67,7 +66,7 @@ export class CoursesService {
       },
       data: {
         ...updateCourseDto,
-        ...(sectionsData && { sections: sectionsData }),
+        sections: sectionsData,
       } as Prisma.CourseUpdateInput,
       include: this.baseInclude,
     });
@@ -110,9 +109,6 @@ export class CoursesService {
   private createSectionsData(sections: UpdateCourseDto['sections']) {
     return sections?.map(({ teachers, ...section }) => ({
       ...section,
-      sectionTimes: {
-        create: section.sectionTimes,
-      },
       sectionTeachers: {
         create: teachers.map(teacher => ({
           teacher: {

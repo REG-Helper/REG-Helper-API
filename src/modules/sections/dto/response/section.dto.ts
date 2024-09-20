@@ -2,9 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { DayOfWeek } from '@prisma/client';
 
-import { SectionTimeResponseDto } from '@/modules/section-times/dto';
 import { TeacherResponseDto } from '@/modules/teachers/dto';
-import { SectionWithTeachersAndTimes } from '@/shared/interfaces';
+import { SectionWithTeachers } from '@/shared/interfaces';
 
 export class SectionResponseDto {
   @ApiProperty({
@@ -49,24 +48,14 @@ export class SectionResponseDto {
   count: number;
 
   @ApiProperty({
-    example: 5,
-  })
-  queueLeft: number;
-
-  @ApiProperty({
-    example: 10,
-  })
-  preCount: number;
-
-  @ApiProperty({
     example: '2024-10-15T09:00:00.000Z',
   })
-  midtermExamDate: Date;
+  midtermExamDate: Date | null;
 
   @ApiProperty({
     example: '2024-12-20T09:00:00.000Z',
   })
-  finalExamDate: Date;
+  finalExamDate: Date | null;
 
   @ApiProperty({
     example: 'condition',
@@ -74,30 +63,36 @@ export class SectionResponseDto {
   condition: string | null;
 
   @ApiProperty({
+    example: '2024-10-15T09:00:00Z',
+  })
+  startAt?: Date | null;
+
+  @ApiProperty({
+    example: '2024-10-15T09:00:00Z',
+  })
+  endAt?: Date | null;
+
+  @ApiProperty({
     type: [TeacherResponseDto],
   })
   teachers: TeacherResponseDto[];
-
-  @ApiProperty({
-    type: [SectionTimeResponseDto],
-  })
-  sectionTimes: SectionTimeResponseDto[];
 
   constructor(partial: Partial<SectionResponseDto>) {
     Object.assign(this, partial);
   }
 
-  static formatSectionResponse(section: SectionWithTeachersAndTimes): SectionResponseDto {
-    const { sectionTeachers, sectionTimes, courseId, ...sectionDetail } = section;
+  static formatSectionResponse(section: SectionWithTeachers): SectionResponseDto {
+    const { sectionTeachers, courseId, ...sectionDetail } = section;
 
     return new SectionResponseDto({
       ...sectionDetail,
-      sectionTimes: sectionTimes.map(section =>
-        SectionTimeResponseDto.formatSectionTimeResponse(section),
-      ),
       teachers: sectionTeachers.map(sectionTeacher =>
         TeacherResponseDto.formatTeacherResponse(sectionTeacher.teacher),
       ),
     });
+  }
+
+  static formatSectionsResponse(sections: SectionWithTeachers[]): SectionResponseDto[] {
+    return sections.map(section => this.formatSectionResponse(section));
   }
 }
