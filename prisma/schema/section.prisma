@@ -10,7 +10,8 @@ model Section {
   midtermExamDate DateTime?
   finalExamDate   DateTime?
   condition       String?
-  sectionTimes    SectionTime[]
+  startAt         DateTime?         @db.Time()
+  endAt           DateTime?         @db.Time()
   courseId        String
   course          Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
   sectionTeachers SectionTeachers[]

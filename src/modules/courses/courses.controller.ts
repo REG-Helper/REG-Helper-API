@@ -30,7 +30,7 @@ export class CoursesController {
   }
 
   @Get()
-  @ApiCreatedResponse({
+  @ApiOkResponse({
     type: [CourseResponseDto],
   })
   async getCourses(): Promise<CourseResponseDto[]> {
@@ -38,7 +38,7 @@ export class CoursesController {
   }
 
   @Get(':id')
-  @ApiCreatedResponse({
+  @ApiOkResponse({
     type: CourseResponseDto,
   })
   async getCourse(@Param('id') courseId: string): Promise<CourseResponseDto> {
@@ -46,7 +46,7 @@ export class CoursesController {
   }
 
   @Delete(':id')
-  @ApiCreatedResponse({
+  @ApiOkResponse({
     type: CourseResponseDto,
   })
   async deleteCourse(@Param('id') courseId: string): Promise<CourseResponseDto> {

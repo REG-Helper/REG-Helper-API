@@ -1,7 +1,0 @@
-model SectionTime {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  startAt   DateTime @db.Time()
-  endAt     DateTime @db.Time()
-  sectionId String   @db.Uuid
-  section   Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-}
