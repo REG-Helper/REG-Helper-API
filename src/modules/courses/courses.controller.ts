@@ -6,6 +6,8 @@ import { CreateSectionDto, SectionResponseDto } from '../sections/dto';
 import { CoursesService } from './courses.service';
 import { CourseResponseDto, CreateCourseDto, UpdateCourseDto } from './dto';
 
+import { ParseCourseIdPipe } from '@/common/pipes';
+
 @Controller('courses')
 @ApiTags('courses')
 export class CoursesController {
@@ -26,7 +28,7 @@ export class CoursesController {
     type: CourseResponseDto,
   })
   async updateCourse(
-    @Param('id') courseId: string,
+    @Param('id', new ParseCourseIdPipe()) courseId: string,
     @Body() updateCourseDto: UpdateCourseDto,
   ): Promise<CourseResponseDto> {
     const updatedCourse = await this.coursesService.updateCourse(courseId, updateCourseDto);
@@ -48,7 +50,9 @@ export class CoursesController {
   @ApiOkResponse({
     type: CourseResponseDto,
   })
-  async getCourse(@Param('id') courseId: string): Promise<CourseResponseDto> {
+  async getCourse(
+    @Param('id', new ParseCourseIdPipe()) courseId: string,
+  ): Promise<CourseResponseDto> {
     const course = await this.coursesService.getCourseByIdOrThrow(courseId);
 
     return CourseResponseDto.formatCourseResponse(course);
@@ -58,7 +62,9 @@ export class CoursesController {
   @ApiOkResponse({
     type: CourseResponseDto,
   })
-  async deleteCourse(@Param('id') courseId: string): Promise<CourseResponseDto> {
+  async deleteCourse(
+    @Param('id', new ParseCourseIdPipe()) courseId: string,
+  ): Promise<CourseResponseDto> {
     const deletedCourse = await this.coursesService.deleteCourse(courseId);
 
     return CourseResponseDto.formatCourseResponse(deletedCourse);
@@ -69,7 +75,7 @@ export class CoursesController {
     type: SectionResponseDto,
   })
   async createCourseSection(
-    @Param('id') courseId: string,
+    @Param('id', new ParseCourseIdPipe()) courseId: string,
     @Body() createSectionDto: CreateSectionDto,
   ): Promise<SectionResponseDto> {
     const createdSection = await this.coursesService.createCourseSection(

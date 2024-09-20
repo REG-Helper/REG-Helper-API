@@ -3,6 +3,8 @@ export const KMITL_EMAIL_REGEX = /^(\d{8})@kmitl\.ac\.th$/;
 
 export const KMITL_STUDENT_ID_REGEX = /^\d{8}$/;
 
+export const COURSE_ID_REGEX = /^\d{8}$/;
+
 export const USER_INFO_REGEX = {
   name: /Name\s+(.+)\n/,
   dateOfBirth: /Date of Birth\s+(.+)Student/,
