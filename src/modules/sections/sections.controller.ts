@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Put } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { SectionResponseDto, UpdateSectionDto } from './dto';
@@ -25,7 +25,9 @@ export class SectionsController {
   @ApiOkResponse({
     type: SectionResponseDto,
   })
-  async getSection(@Param('id') sectionId: string): Promise<SectionResponseDto> {
+  async getSection(
+    @Param('id', new ParseUUIDPipe()) sectionId: string,
+  ): Promise<SectionResponseDto> {
     const section = await this.sectionsService.getSectionByIdOrThrow(sectionId);
 
     return SectionResponseDto.formatSectionResponse(section as SectionWithTeachers);
@@ -36,7 +38,7 @@ export class SectionsController {
     type: SectionResponseDto,
   })
   async updateSection(
-    @Param('id') sectionId: string,
+    @Param('id', new ParseUUIDPipe()) sectionId: string,
     @Body() updateSectionDto: UpdateSectionDto,
   ): Promise<SectionResponseDto> {
     const updatedSection = await this.sectionsService.updateSection(sectionId, updateSectionDto);
@@ -48,7 +50,9 @@ export class SectionsController {
   @ApiOkResponse({
     type: SectionResponseDto,
   })
-  async deleteSection(@Param('id') sectionId: string): Promise<SectionResponseDto> {
+  async deleteSection(
+    @Param('id', new ParseUUIDPipe()) sectionId: string,
+  ): Promise<SectionResponseDto> {
     const deletedSection = await this.sectionsService.deleteSection(sectionId);
 
     return SectionResponseDto.formatSectionResponse(deletedSection);

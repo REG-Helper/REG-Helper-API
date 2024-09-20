@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { CreateTeacherDto, TeacherResponseDto, UpdateTeacherDto } from './dto';
@@ -21,7 +21,9 @@ export class TeachersController {
   @ApiOkResponse({
     type: TeacherResponseDto,
   })
-  async getTeacher(@Param('id') teacherId: string): Promise<TeacherResponseDto> {
+  async getTeacher(
+    @Param('id', new ParseUUIDPipe()) teacherId: string,
+  ): Promise<TeacherResponseDto> {
     return this.teachersService.getTeacherByIdOrThrow(teacherId);
   }
 
@@ -38,7 +40,7 @@ export class TeachersController {
     type: TeacherResponseDto,
   })
   async updateTeacher(
-    @Param('id') teacherId: string,
+    @Param('id', new ParseUUIDPipe()) teacherId: string,
     @Body() updateTeacherDto: UpdateTeacherDto,
   ): Promise<TeacherResponseDto> {
     return this.teachersService.updateTeacher(teacherId, updateTeacherDto);
@@ -48,7 +50,9 @@ export class TeachersController {
   @ApiOkResponse({
     type: TeacherResponseDto,
   })
-  async deleteTeacher(@Param('id') teacherId: string): Promise<TeacherResponseDto> {
+  async deleteTeacher(
+    @Param('id', new ParseUUIDPipe()) teacherId: string,
+  ): Promise<TeacherResponseDto> {
     return this.teachersService.deleteTeacher(teacherId);
   }
 }
