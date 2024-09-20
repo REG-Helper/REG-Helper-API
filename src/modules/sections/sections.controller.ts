@@ -1,7 +1,7 @@
-import { Controller, Delete, Get, Param } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Put } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
-import { SectionResponseDto } from './dto';
+import { SectionResponseDto, UpdateSectionDto } from './dto';
 import { SectionsService } from './sections.service';
 
 @Controller('sections')
@@ -22,7 +22,18 @@ export class SectionsController {
     type: SectionResponseDto,
   })
   async getSection(@Param('id') sectionId: string): Promise<SectionResponseDto> {
-    return this.sectionsService.getSection(sectionId);
+    return this.sectionsService.getSectionByIdOrThrow(sectionId);
+  }
+
+  @Put(':id')
+  @ApiOkResponse({
+    type: SectionResponseDto,
+  })
+  async updateSection(
+    @Param('id') sectionId: string,
+    @Body() updateSectionDto: UpdateSectionDto,
+  ): Promise<SectionResponseDto> {
+    return this.sectionsService.updateSection(sectionId, updateSectionDto);
   }
 
   @Delete(':id')

@@ -14,7 +14,7 @@ export class TeachersService {
     return this.prisma.teacher.findMany();
   }
 
-  async getTeacher(teacherId: string): Promise<Teacher> {
+  async getTeacherByIdOrThrow(teacherId: string): Promise<Teacher> {
     const teacher = await this.prisma.teacher.findUnique({
       where: {
         id: teacherId,
@@ -43,7 +43,7 @@ export class TeachersService {
   }
 
   async updateTeacher(teacherId: string, updateTeacherDto: UpdateTeacherDto): Promise<Teacher> {
-    await this.getTeacher(teacherId);
+    await this.getTeacherByIdOrThrow(teacherId);
 
     const teacherExists = await this.checkTeacherExist(updateTeacherDto, teacherId);
 
@@ -60,7 +60,7 @@ export class TeachersService {
   }
 
   async deleteTeacher(teacherId: string): Promise<Teacher> {
-    await this.getTeacher(teacherId);
+    await this.getTeacherByIdOrThrow(teacherId);
 
     return this.prisma.teacher.delete({
       where: {

@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
 
-import { SectionResponseDto } from './dto';
+import { SectionResponseDto, UpdateSectionDto } from './dto';
 
 @Injectable()
 export class SectionsService {
@@ -14,7 +14,6 @@ export class SectionsService {
         teacher: true,
       },
     },
-    sectionTimes: true,
   };
 
   async getSections(): Promise<SectionResponseDto[]> {
@@ -25,7 +24,7 @@ export class SectionsService {
     return SectionResponseDto.formatSectionsResponse(sections);
   }
 
-  async getSection(sectionId: string): Promise<SectionResponseDto> {
+  async getSectionByIdOrThrow(sectionId: string): Promise<SectionResponseDto> {
     const section = await this.prisma.section.findUnique({
       where: {
         id: sectionId,
@@ -40,8 +39,48 @@ export class SectionsService {
     return SectionResponseDto.formatSectionResponse(section);
   }
 
+  async updateSection(
+    sectionId: string,
+    updateSectionDto: UpdateSectionDto,
+  ): Promise<SectionResponseDto> {
+    await this.getSectionByIdOrThrow(sectionId);
+
+    const { teachers, ...sectionDetail } = updateSectionDto;
+    const sectionTeachers = teachers?.length
+      ? {
+          deleteMany: {},
+          create: teachers?.map(teacher => ({
+            teacher: {
+              connectOrCreate: {
+                where: {
+                  firstnameTh_lastnameTh: {
+                    firstnameTh: teacher.firstnameTh,
+                    lastnameTh: teacher.lastnameTh,
+                  },
+                },
+                create: teacher,
+              },
+            },
+          })),
+        }
+      : undefined;
+
+    const updatedSection = await this.prisma.section.update({
+      where: {
+        id: sectionId,
+      },
+      data: {
+        ...sectionDetail,
+        sectionTeachers,
+      },
+      include: this.baseInclude,
+    });
+
+    return SectionResponseDto.formatSectionResponse(updatedSection);
+  }
+
   async deleteSection(sectionId: string): Promise<SectionResponseDto> {
-    await this.getSection(sectionId);
+    await this.getSectionByIdOrThrow(sectionId);
 
     const deletedSection = await this.prisma.section.delete({
       where: {

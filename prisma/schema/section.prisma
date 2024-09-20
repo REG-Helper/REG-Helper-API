@@ -5,7 +5,7 @@ model Section {
   room            String
   year            Int
   semester        Int
-  limit           Int
+  limit           Int?
   count           Int
   midtermExamDate DateTime?
   finalExamDate   DateTime?

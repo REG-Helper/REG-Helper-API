@@ -6,6 +6,7 @@ import {
   ArrayMinSize,
   IsArray,
   IsEnum,
+  IsInt,
   IsNotEmpty,
   IsPositive,
   IsString,
@@ -62,6 +63,7 @@ export class CreateCourseDto {
     required: true,
     example: 3,
   })
+  @IsInt()
   @IsPositive()
   @IsNotEmpty()
   credit: number;

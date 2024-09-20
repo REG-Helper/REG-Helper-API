@@ -1,9 +1,10 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
+import { CreateSectionDto, SectionResponseDto } from '../sections/dto';
+
 import { CoursesService } from './courses.service';
-import { CreateCourseDto, UpdateCourseDto } from './dto';
-import { CourseResponseDto } from './dto/response/course.dto';
+import { CourseResponseDto, CreateCourseDto, UpdateCourseDto } from './dto';
 
 @Controller('courses')
 @ApiTags('courses')
@@ -42,7 +43,7 @@ export class CoursesController {
     type: CourseResponseDto,
   })
   async getCourse(@Param('id') courseId: string): Promise<CourseResponseDto> {
-    return this.coursesService.getCourse(courseId);
+    return this.coursesService.getCourseByIdOrThrow(courseId);
   }
 
   @Delete(':id')
@@ -51,5 +52,16 @@ export class CoursesController {
   })
   async deleteCourse(@Param('id') courseId: string): Promise<CourseResponseDto> {
     return this.coursesService.deleteCourse(courseId);
+  }
+
+  @Post(':id/section')
+  @ApiCreatedResponse({
+    type: SectionResponseDto,
+  })
+  async createCourseSection(
+    @Param('id') courseId: string,
+    @Body() createSectionDto: CreateSectionDto,
+  ): Promise<SectionResponseDto> {
+    return this.coursesService.createCourseSection(courseId, createSectionDto);
   }
 }
