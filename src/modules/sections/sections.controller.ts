@@ -4,6 +4,8 @@ import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { SectionResponseDto, UpdateSectionDto } from './dto';
 import { SectionsService } from './sections.service';
 
+import { SectionWithTeachers } from '@/shared/interfaces';
+
 @Controller('sections')
 @ApiTags('sections')
 export class SectionsController {
@@ -14,7 +16,9 @@ export class SectionsController {
     type: [SectionResponseDto],
   })
   async getSections(): Promise<SectionResponseDto[]> {
-    return this.sectionsService.getSections();
+    const sections = await this.sectionsService.getSections();
+
+    return SectionResponseDto.formatSectionsResponse(sections);
   }
 
   @Get(':id')
@@ -22,7 +26,9 @@ export class SectionsController {
     type: SectionResponseDto,
   })
   async getSection(@Param('id') sectionId: string): Promise<SectionResponseDto> {
-    return this.sectionsService.getSectionByIdOrThrow(sectionId);
+    const section = await this.sectionsService.getSectionByIdOrThrow(sectionId);
+
+    return SectionResponseDto.formatSectionResponse(section as SectionWithTeachers);
   }
 
   @Put(':id')
@@ -33,7 +39,9 @@ export class SectionsController {
     @Param('id') sectionId: string,
     @Body() updateSectionDto: UpdateSectionDto,
   ): Promise<SectionResponseDto> {
-    return this.sectionsService.updateSection(sectionId, updateSectionDto);
+    const updatedSection = await this.sectionsService.updateSection(sectionId, updateSectionDto);
+
+    return SectionResponseDto.formatSectionResponse(updatedSection);
   }
 
   @Delete(':id')
@@ -41,6 +49,8 @@ export class SectionsController {
     type: SectionResponseDto,
   })
   async deleteSection(@Param('id') sectionId: string): Promise<SectionResponseDto> {
-    return this.sectionsService.deleteSection(sectionId);
+    const deletedSection = await this.sectionsService.deleteSection(sectionId);
+
+    return SectionResponseDto.formatSectionResponse(deletedSection);
   }
 }

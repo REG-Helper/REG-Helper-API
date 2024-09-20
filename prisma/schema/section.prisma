@@ -15,4 +15,6 @@ model Section {
   courseId        String
   course          Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
   sectionTeachers SectionTeachers[]
+
+  @@unique([name, courseId])
 }

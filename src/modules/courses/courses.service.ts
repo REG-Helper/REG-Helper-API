@@ -3,14 +3,20 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateSectionDto, SectionResponseDto } from '../sections/dto';
+import { CreateSectionDto } from '../sections/dto';
+import { SectionsService } from '../sections/sections.service';
 import { CreateTeacherDto } from '../teachers/dto';
 
-import { CourseResponseDto, CreateCourseDto, UpdateCourseDto } from './dto';
+import { CreateCourseDto, UpdateCourseDto } from './dto';
+
+import { CourseWithSections, SectionWithTeachers } from '@/shared/interfaces';
 
 @Injectable()
 export class CoursesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly sectionsService: SectionsService,
+  ) {}
 
   private readonly baseInclude = {
     sections: {
@@ -24,7 +30,7 @@ export class CoursesService {
     },
   };
 
-  async createCourse(createCourseDto: CreateCourseDto): Promise<CourseResponseDto> {
+  async createCourse(createCourseDto: CreateCourseDto): Promise<CourseWithSections> {
     const course = await this.prisma.course.findUnique({
       where: {
         id: createCourseDto.id,
@@ -45,13 +51,13 @@ export class CoursesService {
       include: this.baseInclude,
     });
 
-    return CourseResponseDto.formatCourseResponse(createdCourse);
+    return createdCourse;
   }
 
   async updateCourse(
     courseId: string,
     updateCourseDto: UpdateCourseDto,
-  ): Promise<CourseResponseDto> {
+  ): Promise<CourseWithSections> {
     await this.getCourseByIdOrThrow(courseId);
 
     const sectionsData = updateCourseDto?.sections?.length
@@ -72,16 +78,16 @@ export class CoursesService {
       include: this.baseInclude,
     });
 
-    return CourseResponseDto.formatCourseResponse(updatedCourse);
+    return updatedCourse;
   }
 
-  async getCourses(): Promise<CourseResponseDto[]> {
+  async getCourses(): Promise<CourseWithSections[]> {
     const courses = await this.prisma.course.findMany({ include: this.baseInclude });
 
-    return CourseResponseDto.formatCoursesResponse(courses);
+    return courses;
   }
 
-  async getCourseByIdOrThrow(courseId: string): Promise<CourseResponseDto> {
+  async getCourseByIdOrThrow(courseId: string): Promise<CourseWithSections> {
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
       include: this.baseInclude,
@@ -91,10 +97,10 @@ export class CoursesService {
       throw new NotFoundException('Course not found');
     }
 
-    return CourseResponseDto.formatCourseResponse(course);
+    return course;
   }
 
-  async deleteCourse(courseId: string): Promise<CourseResponseDto> {
+  async deleteCourse(courseId: string): Promise<CourseWithSections> {
     await this.getCourseByIdOrThrow(courseId);
 
     const deletedCourse = await this.prisma.course.delete({
@@ -104,30 +110,29 @@ export class CoursesService {
       include: this.baseInclude,
     });
 
-    return CourseResponseDto.formatCourseResponse(deletedCourse);
+    return deletedCourse;
   }
 
   async createCourseSection(
     courseId: string,
     createSectionDto: CreateSectionDto,
-  ): Promise<SectionResponseDto> {
+  ): Promise<SectionWithTeachers> {
     await this.getCourseByIdOrThrow(courseId);
 
+    await this.sectionsService.checkSectionExistOrThrow(createSectionDto.name, courseId);
+
     const { teachers, ...sectionDetail } = createSectionDto;
-    const createdSection = await this.prisma.section.create({
-      data: {
-        ...sectionDetail,
-        sectionTeachers: this.createTeachersData(teachers),
-        course: {
-          connect: {
-            id: courseId,
-          },
+    const createdSection = await this.sectionsService.createSection({
+      ...sectionDetail,
+      sectionTeachers: this.createTeachersData(teachers),
+      course: {
+        connect: {
+          id: courseId,
         },
       },
-      include: this.baseInclude.sections.include,
     });
 
-    return SectionResponseDto.formatSectionResponse(createdSection);
+    return createdSection;
   }
 
   private createSectionsData(sections: UpdateCourseDto['sections']) {

@@ -16,7 +16,9 @@ export class CoursesController {
     type: CourseResponseDto,
   })
   async createCourse(@Body() createCourseDto: CreateCourseDto): Promise<CourseResponseDto> {
-    return this.coursesService.createCourse(createCourseDto);
+    const createdCourse = await this.coursesService.createCourse(createCourseDto);
+
+    return CourseResponseDto.formatCourseResponse(createdCourse);
   }
 
   @Put(':id')
@@ -27,7 +29,9 @@ export class CoursesController {
     @Param('id') courseId: string,
     @Body() updateCourseDto: UpdateCourseDto,
   ): Promise<CourseResponseDto> {
-    return this.coursesService.updateCourse(courseId, updateCourseDto);
+    const updatedCourse = await this.coursesService.updateCourse(courseId, updateCourseDto);
+
+    return CourseResponseDto.formatCourseResponse(updatedCourse);
   }
 
   @Get()
@@ -35,7 +39,9 @@ export class CoursesController {
     type: [CourseResponseDto],
   })
   async getCourses(): Promise<CourseResponseDto[]> {
-    return this.coursesService.getCourses();
+    const courses = await this.coursesService.getCourses();
+
+    return CourseResponseDto.formatCoursesResponse(courses);
   }
 
   @Get(':id')
@@ -43,7 +49,9 @@ export class CoursesController {
     type: CourseResponseDto,
   })
   async getCourse(@Param('id') courseId: string): Promise<CourseResponseDto> {
-    return this.coursesService.getCourseByIdOrThrow(courseId);
+    const course = await this.coursesService.getCourseByIdOrThrow(courseId);
+
+    return CourseResponseDto.formatCourseResponse(course);
   }
 
   @Delete(':id')
@@ -51,7 +59,9 @@ export class CoursesController {
     type: CourseResponseDto,
   })
   async deleteCourse(@Param('id') courseId: string): Promise<CourseResponseDto> {
-    return this.coursesService.deleteCourse(courseId);
+    const deletedCourse = await this.coursesService.deleteCourse(courseId);
+
+    return CourseResponseDto.formatCourseResponse(deletedCourse);
   }
 
   @Post(':id/section')
@@ -62,6 +72,11 @@ export class CoursesController {
     @Param('id') courseId: string,
     @Body() createSectionDto: CreateSectionDto,
   ): Promise<SectionResponseDto> {
-    return this.coursesService.createCourseSection(courseId, createSectionDto);
+    const createdSection = await this.coursesService.createCourseSection(
+      courseId,
+      createSectionDto,
+    );
+
+    return SectionResponseDto.formatSectionResponse(createdSection);
   }
 }

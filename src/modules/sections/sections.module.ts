@@ -9,5 +9,6 @@ import { SectionsService } from './sections.service';
   imports: [PrismaModule],
   controllers: [SectionsController],
   providers: [SectionsService],
+  exports: [SectionsService],
 })
 export class SectionsModule {}
