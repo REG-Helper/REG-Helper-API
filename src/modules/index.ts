@@ -10,8 +10,6 @@ export * from './oauth/oauth.module';
 
 export * from './prisma/prisma.module';
 
-export * from './section-times/section-times.module';
-
 export * from './teachers/teachers.module';
 
 export * from './transcript/transcript.module';

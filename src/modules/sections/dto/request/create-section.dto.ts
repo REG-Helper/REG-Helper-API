@@ -16,7 +16,6 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-import { CreateSectionTimeDto } from '@/modules/section-times/dto';
 import { CreateTeacherDto } from '@/modules/teachers/dto';
 
 export class CreateSectionDto {
@@ -108,14 +107,22 @@ export class CreateSectionDto {
   condition?: string;
 
   @ApiProperty({
-    type: [CreateSectionTimeDto],
+    example: '2024-10-15T09:00:00Z',
+    required: false,
+    type: Date,
   })
-  @IsNotEmpty()
-  @IsArray()
-  @ArrayMinSize(1)
-  @ValidateNested({ each: true })
-  @Type(() => CreateSectionTimeDto)
-  sectionTimes: CreateSectionTimeDto[];
+  @IsISO8601()
+  @IsOptional()
+  startAt?: string;
+
+  @ApiProperty({
+    example: '2024-10-15T09:00:00Z',
+    required: false,
+    type: Date,
+  })
+  @IsISO8601()
+  @IsOptional()
+  endAt?: string;
 
   @ApiProperty({
     type: [CreateTeacherDto],
