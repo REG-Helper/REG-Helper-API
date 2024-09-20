@@ -16,6 +16,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
+import { IsDateAfter } from '@/common/decorators';
 import { CreateTeacherDto } from '@/modules/teachers/dto';
 
 export class CreateSectionDto {
@@ -120,6 +121,7 @@ export class CreateSectionDto {
     required: false,
     type: Date,
   })
+  @IsDateAfter()
   @IsISO8601()
   @IsOptional()
   endAt?: string;
