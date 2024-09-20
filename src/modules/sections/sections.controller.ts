@@ -1,8 +1,10 @@
-import { Controller, Delete, Get, Param } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Put } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
-import { SectionResponseDto } from './dto';
+import { SectionResponseDto, UpdateSectionDto } from './dto';
 import { SectionsService } from './sections.service';
+
+import { SectionWithTeachers } from '@/shared/interfaces';
 
 @Controller('sections')
 @ApiTags('sections')
@@ -14,7 +16,9 @@ export class SectionsController {
     type: [SectionResponseDto],
   })
   async getSections(): Promise<SectionResponseDto[]> {
-    return this.sectionsService.getSections();
+    const sections = await this.sectionsService.getSections();
+
+    return SectionResponseDto.formatSectionsResponse(sections);
   }
 
   @Get(':id')
@@ -22,7 +26,22 @@ export class SectionsController {
     type: SectionResponseDto,
   })
   async getSection(@Param('id') sectionId: string): Promise<SectionResponseDto> {
-    return this.sectionsService.getSection(sectionId);
+    const section = await this.sectionsService.getSectionByIdOrThrow(sectionId);
+
+    return SectionResponseDto.formatSectionResponse(section as SectionWithTeachers);
+  }
+
+  @Put(':id')
+  @ApiOkResponse({
+    type: SectionResponseDto,
+  })
+  async updateSection(
+    @Param('id') sectionId: string,
+    @Body() updateSectionDto: UpdateSectionDto,
+  ): Promise<SectionResponseDto> {
+    const updatedSection = await this.sectionsService.updateSection(sectionId, updateSectionDto);
+
+    return SectionResponseDto.formatSectionResponse(updatedSection);
   }
 
   @Delete(':id')
@@ -30,6 +49,8 @@ export class SectionsController {
     type: SectionResponseDto,
   })
   async deleteSection(@Param('id') sectionId: string): Promise<SectionResponseDto> {
-    return this.sectionsService.deleteSection(sectionId);
+    const deletedSection = await this.sectionsService.deleteSection(sectionId);
+
+    return SectionResponseDto.formatSectionResponse(deletedSection);
   }
 }

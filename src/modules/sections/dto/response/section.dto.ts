@@ -40,7 +40,7 @@ export class SectionResponseDto {
   @ApiProperty({
     example: 30,
   })
-  limit: number;
+  limit: number | null;
 
   @ApiProperty({
     example: 25,

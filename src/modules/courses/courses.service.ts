@@ -3,13 +3,20 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateSectionDto } from '../sections/dto';
+import { SectionsService } from '../sections/sections.service';
+import { CreateTeacherDto } from '../teachers/dto';
 
 import { CreateCourseDto, UpdateCourseDto } from './dto';
-import { CourseResponseDto } from './dto/response/course.dto';
+
+import { CourseWithSections, SectionWithTeachers } from '@/shared/interfaces';
 
 @Injectable()
 export class CoursesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly sectionsService: SectionsService,
+  ) {}
 
   private readonly baseInclude = {
     sections: {
@@ -23,7 +30,7 @@ export class CoursesService {
     },
   };
 
-  async createCourse(createCourseDto: CreateCourseDto): Promise<CourseResponseDto> {
+  async createCourse(createCourseDto: CreateCourseDto): Promise<CourseWithSections> {
     const course = await this.prisma.course.findUnique({
       where: {
         id: createCourseDto.id,
@@ -44,14 +51,14 @@ export class CoursesService {
       include: this.baseInclude,
     });
 
-    return CourseResponseDto.formatCourseResponse(createdCourse);
+    return createdCourse;
   }
 
   async updateCourse(
     courseId: string,
     updateCourseDto: UpdateCourseDto,
-  ): Promise<CourseResponseDto> {
-    await this.getCourse(courseId);
+  ): Promise<CourseWithSections> {
+    await this.getCourseByIdOrThrow(courseId);
 
     const sectionsData = updateCourseDto?.sections?.length
       ? {
@@ -71,16 +78,16 @@ export class CoursesService {
       include: this.baseInclude,
     });
 
-    return CourseResponseDto.formatCourseResponse(updatedCourse);
+    return updatedCourse;
   }
 
-  async getCourses(): Promise<CourseResponseDto[]> {
+  async getCourses(): Promise<CourseWithSections[]> {
     const courses = await this.prisma.course.findMany({ include: this.baseInclude });
 
-    return CourseResponseDto.formatCoursesResponse(courses);
+    return courses;
   }
 
-  async getCourse(courseId: string): Promise<CourseResponseDto> {
+  async getCourseByIdOrThrow(courseId: string): Promise<CourseWithSections> {
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
       include: this.baseInclude,
@@ -90,11 +97,11 @@ export class CoursesService {
       throw new NotFoundException('Course not found');
     }
 
-    return CourseResponseDto.formatCourseResponse(course);
+    return course;
   }
 
-  async deleteCourse(courseId: string): Promise<CourseResponseDto> {
-    await this.getCourse(courseId);
+  async deleteCourse(courseId: string): Promise<CourseWithSections> {
+    await this.getCourseByIdOrThrow(courseId);
 
     const deletedCourse = await this.prisma.course.delete({
       where: {
@@ -103,27 +110,53 @@ export class CoursesService {
       include: this.baseInclude,
     });
 
-    return CourseResponseDto.formatCourseResponse(deletedCourse);
+    return deletedCourse;
+  }
+
+  async createCourseSection(
+    courseId: string,
+    createSectionDto: CreateSectionDto,
+  ): Promise<SectionWithTeachers> {
+    await this.getCourseByIdOrThrow(courseId);
+
+    await this.sectionsService.checkSectionExistOrThrow(createSectionDto.name, courseId);
+
+    const { teachers, ...sectionDetail } = createSectionDto;
+    const createdSection = await this.sectionsService.createSection({
+      ...sectionDetail,
+      sectionTeachers: this.createTeachersData(teachers),
+      course: {
+        connect: {
+          id: courseId,
+        },
+      },
+    });
+
+    return createdSection;
   }
 
   private createSectionsData(sections: UpdateCourseDto['sections']) {
     return sections?.map(({ teachers, ...section }) => ({
       ...section,
-      sectionTeachers: {
-        create: teachers.map(teacher => ({
-          teacher: {
-            connectOrCreate: {
-              where: {
-                firstnameTh_lastnameTh: {
-                  firstnameTh: teacher.firstnameTh,
-                  lastnameTh: teacher.lastnameTh,
-                },
-              },
-              create: teacher,
-            },
-          },
-        })),
-      },
+      sectionTeachers: this.createTeachersData(teachers),
     }));
+  }
+
+  private createTeachersData(teachers: CreateTeacherDto[]) {
+    return {
+      create: teachers.map(teacher => ({
+        teacher: {
+          connectOrCreate: {
+            where: {
+              firstnameTh_lastnameTh: {
+                firstnameTh: teacher.firstnameTh,
+                lastnameTh: teacher.lastnameTh,
+              },
+            },
+            create: teacher,
+          },
+        },
+      })),
+    };
   }
 }
