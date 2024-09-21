@@ -96,7 +96,7 @@ export class CoursesService {
     const totalCourses = await this.prisma.course.count();
 
     return PaginateResponseDto.formatPaginationResponse({
-      data: courses,
+      data: CourseResponseDto.formatCoursesResponse(courses),
       page,
       perPage,
       total: totalCourses,
