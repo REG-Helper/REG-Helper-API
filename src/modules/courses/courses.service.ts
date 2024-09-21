@@ -119,7 +119,12 @@ export class CoursesService {
   ): Promise<SectionWithTeachers> {
     await this.getCourseByIdOrThrow(courseId);
 
-    await this.sectionsService.checkSectionExistOrThrow(createSectionDto.name, courseId);
+    await this.sectionsService.checkSectionExistOrThrow(
+      createSectionDto.name,
+      createSectionDto.year,
+      createSectionDto.semester,
+      courseId,
+    );
 
     const { teachers, ...sectionDetail } = createSectionDto;
     const createdSection = await this.sectionsService.createSection({

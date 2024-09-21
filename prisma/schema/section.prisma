@@ -9,12 +9,13 @@ model Section {
   count           Int
   midtermExamDate DateTime?
   finalExamDate   DateTime?
-  condition       String?
+  condition       String? 
+  type            SectionType       @default(LECTURE)
   startAt         DateTime?         @db.Time()
   endAt           DateTime?         @db.Time()
   courseId        String
   course          Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
   sectionTeachers SectionTeachers[]
 
-  @@unique([name, courseId])
+  @@unique([name, courseId, year, semester])
 }

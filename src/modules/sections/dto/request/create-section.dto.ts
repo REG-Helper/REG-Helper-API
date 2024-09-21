@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { DayOfWeek } from '@prisma/client';
+import { DayOfWeek, SectionType } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
@@ -73,6 +73,15 @@ export class CreateSectionDto {
   @Min(1)
   @IsPositive()
   semester: number;
+
+  @ApiProperty({
+    enum: SectionType,
+    example: `${SectionType.LECTURE} ex. ${Object.values(SectionType).join(', ')}`,
+    required: true,
+  })
+  @IsEnum(SectionType)
+  @IsNotEmpty()
+  type: SectionType;
 
   @ApiProperty({
     example: 2023,
