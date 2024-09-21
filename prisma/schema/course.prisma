@@ -6,7 +6,6 @@ model Course {
   descriptionTh String
   credit        Int
   creditStr     String
-  type          CourseType
   group         CourseGroup
   subGroup      CourseSubGroup
   sections      Section[]

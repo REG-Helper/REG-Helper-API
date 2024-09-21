@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { CourseGroup, CourseSubGroup, CourseType } from '@prisma/client';
+import { CourseGroup, CourseSubGroup } from '@prisma/client';
 
 import { SectionResponseDto } from '@/modules/sections/dto';
 import { CourseWithSections, SectionWithTeachers } from '@/shared/interfaces';
@@ -39,11 +39,6 @@ export class CourseResponseDto {
     example: '3 (3-0-6)',
   })
   creditStr: string;
-
-  @ApiProperty({
-    enum: CourseType,
-  })
-  type: CourseType;
 
   @ApiProperty({
     enum: CourseGroup,

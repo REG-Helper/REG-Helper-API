@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { DayOfWeek } from '@prisma/client';
+import { DayOfWeek, SectionType } from '@prisma/client';
 
 import { TeacherResponseDto } from '@/modules/teachers/dto';
 import { SectionWithTeachers } from '@/shared/interfaces';
@@ -26,6 +26,12 @@ export class SectionResponseDto {
     example: 'Room 101',
   })
   room: string;
+
+  @ApiProperty({
+    enum: SectionType,
+    example: `${SectionType.LECTURE} ex. ${Object.values(SectionType).join(', ')}`,
+  })
+  type: SectionType;
 
   @ApiProperty({
     example: 2024,
