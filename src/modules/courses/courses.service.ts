@@ -7,8 +7,9 @@ import { CreateSectionDto } from '../sections/dto';
 import { SectionsService } from '../sections/sections.service';
 import { CreateTeacherDto } from '../teachers/dto';
 
-import { CreateCourseDto, UpdateCourseDto } from './dto';
+import { CourseResponseDto, CreateCourseDto, GetCoursesQueryDto, UpdateCourseDto } from './dto';
 
+import { PaginateResponseDto } from '@/shared/dto';
 import { CourseWithSections, SectionWithTeachers } from '@/shared/interfaces';
 
 @Injectable()
@@ -81,10 +82,25 @@ export class CoursesService {
     return updatedCourse;
   }
 
-  async getCourses(): Promise<CourseWithSections[]> {
-    const courses = await this.prisma.course.findMany({ include: this.baseInclude });
+  async getCourses(
+    getCoursesQueryDto: GetCoursesQueryDto,
+  ): Promise<PaginateResponseDto<CourseResponseDto>> {
+    const { page, perPage } = getCoursesQueryDto;
+    const skip = (page - 1) * perPage;
+    const courses = await this.prisma.course.findMany({
+      include: this.baseInclude,
+      skip,
+      take: perPage,
+    });
 
-    return courses;
+    const totalCourses = await this.prisma.course.count();
+
+    return PaginateResponseDto.formatPaginationResponse({
+      data: courses,
+      page,
+      perPage,
+      total: totalCourses,
+    });
   }
 
   async getCourseByIdOrThrow(courseId: string): Promise<CourseWithSections> {
