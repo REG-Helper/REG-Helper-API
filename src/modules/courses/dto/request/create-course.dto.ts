@@ -9,9 +9,9 @@ import {
   IsInt,
   IsNotEmpty,
   IsOptional,
-  IsPositive,
   IsString,
   Length,
+  Min,
   ValidateNested,
 } from 'class-validator';
 
@@ -65,7 +65,7 @@ export class CreateCourseDto {
     example: 3,
   })
   @IsInt()
-  @IsPositive()
+  @Min(0)
   @IsNotEmpty()
   credit: number;
 
