@@ -35,16 +35,16 @@ export class CreateSectionDto {
     required: true,
   })
   @IsEnum(DayOfWeek)
-  @IsNotEmpty()
-  day: DayOfWeek;
+  @IsOptional()
+  day?: DayOfWeek;
 
   @ApiProperty({
     required: true,
     example: 'Room 101',
   })
   @IsString()
-  @IsNotEmpty()
-  room: string;
+  @IsOptional()
+  room?: string;
 
   @ApiProperty({
     example: 30,

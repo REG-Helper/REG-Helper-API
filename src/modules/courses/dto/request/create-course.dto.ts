@@ -8,6 +8,7 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsPositive,
   IsString,
   Length,
@@ -48,16 +49,16 @@ export class CreateCourseDto {
     example: 'This course introduces the fundamentals of programming.',
   })
   @IsString()
-  @IsNotEmpty()
-  descriptionEn: string;
+  @IsOptional()
+  descriptionEn?: string;
 
   @ApiProperty({
     required: true,
     example: 'วิชานี้แนะนำพื้นฐานของการเขียนโปรแกรม',
   })
   @IsString()
-  @IsNotEmpty()
-  descriptionTh: string;
+  @IsOptional()
+  descriptionTh?: string;
 
   @ApiProperty({
     required: true,
