@@ -2,8 +2,8 @@ model Course {
   id            String         @id
   nameEn        String
   nameTh        String
-  descriptionEn String
-  descriptionTh String
+  descriptionEn String?
+  descriptionTh String?
   credit        Int
   creditStr     String
   group         CourseGroup

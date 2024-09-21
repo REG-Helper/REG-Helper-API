@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "Course" ALTER COLUMN "descriptionEn" DROP NOT NULL,
+ALTER COLUMN "descriptionTh" DROP NOT NULL;
+
+-- AlterTable
+ALTER TABLE "Section" ALTER COLUMN "room" DROP NOT NULL,
+ALTER COLUMN "day" DROP NOT NULL;

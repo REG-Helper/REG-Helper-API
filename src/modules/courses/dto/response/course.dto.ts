@@ -24,12 +24,12 @@ export class CourseResponseDto {
   @ApiProperty({
     example: 'This course introduces the fundamentals of programming.',
   })
-  descriptionEn: string;
+  descriptionEn: string | null;
 
   @ApiProperty({
     example: 'วิชานี้แนะนำพื้นฐานของการเขียนโปรแกรม',
   })
-  descriptionTh: string;
+  descriptionTh: string | null;
 
   @ApiProperty({
     example: 3,

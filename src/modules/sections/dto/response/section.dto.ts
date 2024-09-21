@@ -20,12 +20,12 @@ export class SectionResponseDto {
     enum: DayOfWeek,
     example: `${DayOfWeek.FRIDAY} ex. ${Object.values(DayOfWeek).join(', ')}`,
   })
-  day: DayOfWeek;
+  day: DayOfWeek | null;
 
   @ApiProperty({
     example: 'Room 101',
   })
-  room: string;
+  room: string | null;
 
   @ApiProperty({
     enum: SectionType,

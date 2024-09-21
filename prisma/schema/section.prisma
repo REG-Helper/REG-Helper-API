@@ -1,8 +1,8 @@
 model Section {
   id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name            String
-  day             DayOfWeek
-  room            String
+  day             DayOfWeek?
+  room            String?
   year            Int
   semester        Int
   limit           Int?
