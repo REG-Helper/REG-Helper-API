@@ -8,7 +8,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum CourseType {
+enum SectionType {
   LECTURE
   PRACTICE
 }

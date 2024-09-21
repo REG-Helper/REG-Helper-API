@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { CourseGroup, CourseSubGroup, CourseType } from '@prisma/client';
+import { CourseGroup, CourseSubGroup } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
@@ -75,15 +75,6 @@ export class CreateCourseDto {
   @IsString()
   @IsNotEmpty()
   creditStr: string;
-
-  @ApiProperty({
-    enum: CourseType,
-    example: `${CourseType.LECTURE} ex. ${Object.values(CourseType).join(', ')}`,
-    required: true,
-  })
-  @IsEnum(CourseType)
-  @IsNotEmpty()
-  type: CourseType;
 
   @ApiProperty({
     enum: CourseGroup,

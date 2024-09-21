@@ -57,7 +57,13 @@ export class SectionsService {
   ): Promise<SectionWithTeachers> {
     const section = await this.getSectionByIdOrThrow(sectionId);
 
-    await this.checkSectionExistOrThrow(updateSectionDto.name, section?.courseId, sectionId);
+    await this.checkSectionExistOrThrow(
+      updateSectionDto.name ?? section?.name,
+      updateSectionDto.year ?? Number(section?.year),
+      updateSectionDto.semester ?? Number(section?.semester),
+      section?.courseId,
+      sectionId,
+    );
 
     const { teachers, ...sectionDetail } = updateSectionDto;
     const sectionTeachers = teachers?.length
@@ -96,6 +102,8 @@ export class SectionsService {
 
   async checkSectionExistOrThrow(
     sectionName: string | undefined,
+    year: number,
+    semester: number,
     courseId?: string,
     excludeId?: string,
   ): Promise<Section | null> {
@@ -103,6 +111,8 @@ export class SectionsService {
       where: {
         courseId,
         name: sectionName,
+        year,
+        semester,
         ...(excludeId && {
           NOT: {
             id: excludeId,
