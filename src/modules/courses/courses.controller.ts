@@ -1,12 +1,14 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { CreateSectionDto, SectionResponseDto } from '../sections/dto';
 
 import { CoursesService } from './courses.service';
-import { CourseResponseDto, CreateCourseDto, UpdateCourseDto } from './dto';
+import { CourseResponseDto, CreateCourseDto, GetCoursesQueryDto, UpdateCourseDto } from './dto';
 
+import { ApiPaginatedResponse } from '@/common/decorators';
 import { ParseCourseIdPipe } from '@/common/pipes';
+import { PaginateResponseDto } from '@/shared/dto';
 
 @Controller('courses')
 @ApiTags('courses')
@@ -37,13 +39,13 @@ export class CoursesController {
   }
 
   @Get()
-  @ApiOkResponse({
-    type: [CourseResponseDto],
-  })
-  async getCourses(): Promise<CourseResponseDto[]> {
-    const courses = await this.coursesService.getCourses();
+  @ApiPaginatedResponse(CourseResponseDto)
+  async getCourses(
+    @Query() getCoursesQueryDto: GetCoursesQueryDto,
+  ): Promise<PaginateResponseDto<CourseResponseDto>> {
+    const courses = await this.coursesService.getCourses(getCoursesQueryDto);
 
-    return CourseResponseDto.formatCoursesResponse(courses);
+    return courses;
   }
 
   @Get(':id')

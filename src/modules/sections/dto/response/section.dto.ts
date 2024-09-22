@@ -81,7 +81,7 @@ export class SectionResponseDto {
   @ApiProperty({
     type: [TeacherResponseDto],
   })
-  teachers: TeacherResponseDto[];
+  teachers?: TeacherResponseDto[];
 
   constructor(partial: Partial<SectionResponseDto>) {
     Object.assign(this, partial);
