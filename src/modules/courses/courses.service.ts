@@ -85,8 +85,6 @@ export class CoursesService {
   async getCourses(
     getCoursesQueryDto: GetCoursesQueryDto,
   ): Promise<PaginateResponseDto<CourseResponseDto>> {
-    console.log(getCoursesQueryDto);
-
     const { page, perPage, id, name, day, group, subGroup, startAt, endAt, year, semester } =
       getCoursesQueryDto;
 
