@@ -7,8 +7,9 @@ import { CreateSectionDto } from '../sections/dto';
 import { SectionsService } from '../sections/sections.service';
 import { CreateTeacherDto } from '../teachers/dto';
 
-import { CreateCourseDto, UpdateCourseDto } from './dto';
+import { CourseResponseDto, CreateCourseDto, GetCoursesQueryDto, UpdateCourseDto } from './dto';
 
+import { PaginateResponseDto } from '@/shared/dto';
 import { CourseWithSections, SectionWithTeachers } from '@/shared/interfaces';
 
 @Injectable()
@@ -81,10 +82,71 @@ export class CoursesService {
     return updatedCourse;
   }
 
-  async getCourses(): Promise<CourseWithSections[]> {
-    const courses = await this.prisma.course.findMany({ include: this.baseInclude });
+  async getCourses(
+    getCoursesQueryDto: GetCoursesQueryDto,
+  ): Promise<PaginateResponseDto<CourseResponseDto>> {
+    const { page, perPage, id, name, day, group, subGroup, startAt, endAt, year, semester } =
+      getCoursesQueryDto;
 
-    return courses;
+    const skip = (page - 1) * perPage;
+    const query: Prisma.CourseWhereInput = {
+      OR: name
+        ? [
+            {
+              nameEn: {
+                contains: name,
+                mode: 'insensitive',
+              },
+            },
+            {
+              nameTh: {
+                contains: name,
+                mode: 'insensitive',
+              },
+            },
+          ]
+        : undefined,
+      id: id && {
+        contains: id,
+        mode: 'insensitive',
+      },
+      sections: {
+        some: {
+          day,
+          startAt: startAt && {
+            gte: startAt,
+          },
+          endAt: endAt && {
+            lte: endAt,
+          },
+        },
+        every: {
+          year,
+          semester,
+        },
+      },
+      group,
+      subGroup,
+    };
+
+    const [courses, totalCourses] = await Promise.all([
+      this.prisma.course.findMany({
+        where: query,
+        include: this.baseInclude,
+        skip,
+        take: perPage,
+      }),
+      this.prisma.course.count({
+        where: query,
+      }),
+    ]);
+
+    return PaginateResponseDto.formatPaginationResponse({
+      data: CourseResponseDto.formatCoursesResponse(courses),
+      page,
+      perPage,
+      total: totalCourses,
+    });
   }
 
   async getCourseByIdOrThrow(courseId: string): Promise<CourseWithSections> {
