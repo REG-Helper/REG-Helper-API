@@ -30,12 +30,6 @@ export const parseDataFromTranscript = (transcriptText: string): ITranscriptData
     };
   });
 
-  courses.push({
-    credit: 2,
-    grade: 'A',
-    id: '54454545',
-  });
-
   return { user, courses };
 };
 
