@@ -4,12 +4,7 @@ export const groupWithSubgroup: Map<CourseGroup, CourseSubGroup[]> = new Map([
   [CourseGroup.FREE_ELEC, [CourseSubGroup.FREE_ELEC]],
   [
     CourseGroup.GENED,
-    [
-      CourseSubGroup.FUND,
-      CourseSubGroup.LANG,
-      CourseSubGroup.MAJOR_ELEC,
-      CourseSubGroup.GENED_ELEC,
-    ],
+    [CourseSubGroup.FUND, CourseSubGroup.LANG, CourseSubGroup.FAC_SPEC, CourseSubGroup.GENED_ELEC],
   ],
   [
     CourseGroup.SPEC,
