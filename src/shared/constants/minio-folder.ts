@@ -1,3 +1,3 @@
 export const MINIO_FOLDER = {
-  transcript: 'transcript',
+  transcript: 'transcripts',
 };

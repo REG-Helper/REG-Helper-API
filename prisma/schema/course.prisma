@@ -9,5 +9,4 @@ model Course {
   group         CourseGroup
   subGroup      CourseSubGroup
   sections      Section[]
-  userCourses   UserCourses[]
 }

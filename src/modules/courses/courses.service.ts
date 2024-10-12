@@ -1,6 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 
-import { Prisma } from '@prisma/client';
+import { Course, Prisma } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSectionDto } from '../sections/dto';
@@ -225,5 +225,28 @@ export class CoursesService {
         },
       })),
     };
+  }
+
+  async findCourses(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.CourseWhereUniqueInput;
+    where?: Prisma.CourseWhereInput;
+    orderBy?: Prisma.CourseOrderByWithRelationInput;
+  }): Promise<Course[]> {
+    const { skip, take, cursor, where, orderBy } = params;
+
+    return this.prisma.course.findMany({ skip, take, cursor, where, orderBy });
+  }
+
+  async findMissingCourses(courseIds: string[]): Promise<string[]> {
+    const courseExists = await this.prisma.course.findMany({
+      where: { id: { in: courseIds } },
+      select: { id: true },
+    });
+
+    const courseIdsExists = new Set(courseExists.map(course => course.id));
+
+    return courseIds.filter(courseId => !courseIdsExists.has(courseId));
   }
 }
