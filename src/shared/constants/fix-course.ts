@@ -1,4 +1,4 @@
-export const REQIRED_CATEGOTIES_DATA = {
+export const REQUIRED_CATEGOTIES_DATA = {
   specificCoursesCore: new Set([
     '01076140',
     '01076141',
@@ -41,7 +41,7 @@ export const REQIRED_CATEGOTIES_DATA = {
   genEdFacultySpecific: new Set(['90642118', '90642036']),
 };
 
-export const COUNTS_DATA = {
+export const ELECTIVE_COURSE_COUNT = {
   electiveRequiredCount: 0,
   altStudyCount: 0,
   majorElectiveCount: 0,
