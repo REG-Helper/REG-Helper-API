@@ -10,4 +10,4 @@ export * from './course.interface';
 
 export * from './section.interface';
 
-export * from './calc-remain.interface';
+export * from './calculate-grade.interface';

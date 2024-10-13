@@ -4,4 +4,4 @@ export * from './pdf-parser';
 
 export * from './string';
 
-export * from './calc-grade';
+export * from './calculate-grade';
