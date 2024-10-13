@@ -33,7 +33,7 @@ export class TranscriptService {
 
     const { user: extractUser, courses } = parseDataFromTranscript(transcriptText);
     const userCourses = courses.map(course => ({ courseId: course.id, userId: user.studentId }));
-    const missingCourses = await this.coursesService.findMissingCourses(
+    const missingCourses = await this.coursesService.findMissingCourseIds(
       courses.map(course => course.id),
     );
 
