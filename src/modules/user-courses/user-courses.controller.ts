@@ -1,4 +1,4 @@
-import { Controller, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 
 import { User } from '@prisma/client';
 
@@ -12,8 +12,8 @@ import { AccessTokenGuard } from '@/common/guards';
 export class UserCoursesController {
   constructor(private readonly userCoursesService: UserCoursesService) {}
 
-  @Post('getRemainCourse')
+  @Get('remaining')
   async getRemainCourse(@CurrentUser() user: User) {
-    return this.userCoursesService.getRemainCourse(user);
+    return this.userCoursesService.getRemainingCourse(user);
   }
 }
