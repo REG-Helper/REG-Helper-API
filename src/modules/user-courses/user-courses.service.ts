@@ -1,16 +1,20 @@
 import { Injectable } from '@nestjs/common';
 
-import { User } from '@prisma/client';
+import { Course, CourseGroup, CourseSubGroup, User } from '@prisma/client';
 
+import { CoursesService } from '../courses/courses.service';
 import { PrismaService } from '../prisma/prisma.service';
 
-import { checkRemainCourse } from '@/shared/utils/calc-grade';
+import { checkRemainCourse } from '@/shared/utils/calculate-grade';
 
 @Injectable()
 export class UserCoursesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly courseService: CoursesService,
+  ) {}
 
-  async getRemainCourse(user: User) {
+  async getRemainingCourse(user: User) {
     const userCourses = await this.prisma.userCourses.findMany({
       where: {
         userId: user.studentId,
@@ -21,11 +25,9 @@ export class UserCoursesService {
     });
 
     const userCourseIds = userCourses.map(course => course.courseId);
-    const learnerCourse = await this.prisma.course.findMany({
+    const learnerCourse = await this.courseService.findCourses({
       where: {
-        id: {
-          in: userCourseIds,
-        },
+        id: { in: userCourseIds },
       },
       select: {
         id: true,
@@ -35,16 +37,15 @@ export class UserCoursesService {
       },
     });
 
-    const learnerCourseIds = learnerCourse.map(course => course.id);
-    const missingCourseIds = userCourseIds.filter(id => !learnerCourseIds.includes(id));
+    const missingCourseIds = await this.courseService.findMissingCourses(userCourseIds);
 
-    missingCourseIds.forEach(id => {
+    missingCourseIds.forEach(course => {
       learnerCourse.push({
-        id,
-        group: 'FREE_ELEC',
-        subGroup: 'FREE_ELEC',
+        id: course.id,
+        group: CourseGroup.FREE_ELEC,
+        subGroup: CourseSubGroup.FREE_ELEC,
         credit: 3,
-      });
+      } as Course);
     });
 
     return checkRemainCourse(learnerCourse);
