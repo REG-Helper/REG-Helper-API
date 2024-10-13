@@ -9,3 +9,5 @@ export * from './oauth.interface';
 export * from './course.interface';
 
 export * from './section.interface';
+
+export * from './calc-remain.interface';
