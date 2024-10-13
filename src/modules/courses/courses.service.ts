@@ -258,13 +258,14 @@ export class CoursesService {
     cursor?: Prisma.CourseWhereUniqueInput;
     where?: Prisma.CourseWhereInput;
     orderBy?: Prisma.CourseOrderByWithRelationInput;
+    select?: Prisma.CourseSelect;
   }): Promise<Course[]> {
-    const { skip, take, cursor, where, orderBy } = params;
+    const { skip, take, cursor, where, orderBy, select } = params;
 
-    return this.prisma.course.findMany({ skip, take, cursor, where, orderBy });
+    return this.prisma.course.findMany({ skip, take, cursor, where, orderBy, select });
   }
 
-  async findMissingCourses(courseIds: string[]): Promise<string[]> {
+  async findMissingCourseIds(courseIds: string[]): Promise<string[]> {
     const courseExists = await this.prisma.course.findMany({
       where: { id: { in: courseIds } },
       select: { id: true },
@@ -273,5 +274,15 @@ export class CoursesService {
     const courseIdsExists = new Set(courseExists.map(course => course.id));
 
     return courseIds.filter(courseId => !courseIdsExists.has(courseId));
+  }
+
+  async findMissingCourses(courseIds: string[]): Promise<Course[]> {
+    const missingCourseIds = await this.findMissingCourseIds(courseIds);
+
+    return this.findCourses({
+      where: {
+        id: { in: missingCourseIds },
+      },
+    });
   }
 }
