@@ -4,7 +4,13 @@ import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { CreateSectionDto, SectionResponseDto } from '../sections/dto';
 
 import { CoursesService } from './courses.service';
-import { CourseResponseDto, CreateCourseDto, GetCoursesQueryDto, UpdateCourseDto } from './dto';
+import {
+  CourseResponseDto,
+  CreateCourseDto,
+  GetCourseDetailQuery,
+  GetCoursesQueryDto,
+  UpdateCourseDto,
+} from './dto';
 
 import { ApiPaginatedResponse } from '@/common/decorators';
 import { ParseCourseIdPipe } from '@/common/pipes';
@@ -54,8 +60,9 @@ export class CoursesController {
   })
   async getCourse(
     @Param('id', new ParseCourseIdPipe()) courseId: string,
+    @Query() getCourseDetailQuery: GetCourseDetailQuery,
   ): Promise<CourseResponseDto> {
-    const course = await this.coursesService.getCourseByIdOrThrow(courseId);
+    const course = await this.coursesService.getCourseByIdOrThrow(courseId, getCourseDetailQuery);
 
     return CourseResponseDto.formatCourseResponse(course);
   }
