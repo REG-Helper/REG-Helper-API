@@ -17,3 +17,8 @@ export interface ITranscriptData {
   user: ITranscriptUser;
   courses: ITranscriptCourse[];
 }
+
+export interface IUserCourseData {
+  userId: string;
+  courseId: string;
+}

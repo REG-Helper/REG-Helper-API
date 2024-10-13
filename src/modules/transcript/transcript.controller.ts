@@ -48,6 +48,6 @@ export class TranscriptController {
     )
     file: Express.Multer.File,
   ): Promise<UploadTranscriptResponseDto> {
-    return this.transcriptService.uploadTranscript(user, file);
+    return this.transcriptService.upload(user, file);
   }
 }

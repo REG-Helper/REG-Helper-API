@@ -1,13 +1,19 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 
-import { Prisma } from '@prisma/client';
+import { Course, Prisma } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSectionDto } from '../sections/dto';
 import { SectionsService } from '../sections/sections.service';
 import { CreateTeacherDto } from '../teachers/dto';
 
-import { CourseResponseDto, CreateCourseDto, GetCoursesQueryDto, UpdateCourseDto } from './dto';
+import {
+  CourseResponseDto,
+  CreateCourseDto,
+  GetCourseDetailQuery,
+  GetCoursesQueryDto,
+  UpdateCourseDto,
+} from './dto';
 
 import { PaginateResponseDto } from '@/shared/dto';
 import { CourseWithSections, SectionWithTeachers } from '@/shared/interfaces';
@@ -119,8 +125,6 @@ export class CoursesService {
           endAt: endAt && {
             lte: endAt,
           },
-        },
-        every: {
           year,
           semester,
         },
@@ -132,7 +136,15 @@ export class CoursesService {
     const [courses, totalCourses] = await Promise.all([
       this.prisma.course.findMany({
         where: query,
-        include: this.baseInclude,
+        include: {
+          sections: {
+            where: {
+              year,
+              semester,
+            },
+            include: this.baseInclude.sections.include,
+          },
+        },
         skip,
         take: perPage,
       }),
@@ -149,10 +161,23 @@ export class CoursesService {
     });
   }
 
-  async getCourseByIdOrThrow(courseId: string): Promise<CourseWithSections> {
+  async getCourseByIdOrThrow(
+    courseId: string,
+    getCourseDetailQuery?: GetCourseDetailQuery,
+  ): Promise<CourseWithSections> {
     const course = await this.prisma.course.findUnique({
-      where: { id: courseId },
-      include: this.baseInclude,
+      where: {
+        id: courseId,
+      },
+      include: {
+        sections: {
+          where: {
+            year: getCourseDetailQuery?.year,
+            semester: getCourseDetailQuery?.semester,
+          },
+          include: this.baseInclude.sections.include,
+        },
+      },
     });
 
     if (!course) {
@@ -225,5 +250,28 @@ export class CoursesService {
         },
       })),
     };
+  }
+
+  async findCourses(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.CourseWhereUniqueInput;
+    where?: Prisma.CourseWhereInput;
+    orderBy?: Prisma.CourseOrderByWithRelationInput;
+  }): Promise<Course[]> {
+    const { skip, take, cursor, where, orderBy } = params;
+
+    return this.prisma.course.findMany({ skip, take, cursor, where, orderBy });
+  }
+
+  async findMissingCourses(courseIds: string[]): Promise<string[]> {
+    const courseExists = await this.prisma.course.findMany({
+      where: { id: { in: courseIds } },
+      select: { id: true },
+    });
+
+    const courseIdsExists = new Set(courseExists.map(course => course.id));
+
+    return courseIds.filter(courseId => !courseIdsExists.has(courseId));
   }
 }
