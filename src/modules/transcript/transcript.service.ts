@@ -37,8 +37,6 @@ export class TranscriptService {
       courses.map(course => course.id),
     );
 
-    console.log(missingCourses);
-
     const result = await this.prisma.$transaction(
       async prisma => {
         const updatedUser = await prisma.user.update({
