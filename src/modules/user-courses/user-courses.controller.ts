@@ -1,14 +1,17 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { User } from '@prisma/client';
 
 import { UserCoursesService } from './user-courses.service';
 
 import { CurrentUser } from '@/common/decorators';
-import { AccessTokenGuard } from '@/common/guards';
+import { AccessTokenGuard, TranscriptGuard } from '@/common/guards';
 
 @Controller('user-courses')
-@UseGuards(AccessTokenGuard)
+@ApiBearerAuth()
+@ApiTags('user-courses')
+@UseGuards(AccessTokenGuard, TranscriptGuard)
 export class UserCoursesController {
   constructor(private readonly userCoursesService: UserCoursesService) {}
 

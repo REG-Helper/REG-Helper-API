@@ -7,6 +7,8 @@ export function checkRemainCourse(courses: Course[]): ICalcRemainCourse {
   const requiredCategories = structuredClone(REQUIRED_CATEGOTIES_DATA);
   const counts = structuredClone(ELECTIVE_COURSE_COUNT);
 
+  console.log(courses);
+
   courses.forEach(course => {
     if (course.group == 'SPEC') {
       processSpecificCourses(course, requiredCategories, counts);
@@ -17,6 +19,8 @@ export function checkRemainCourse(courses: Course[]): ICalcRemainCourse {
     }
   });
 
+  console.log(requiredCategories);
+
   return calculateRemainingCourses(requiredCategories, counts);
 }
 
@@ -24,7 +28,7 @@ function processSpecificCourses(
   course: Course,
   requiredCategories: IRequiedCategories,
   counts: IElectiveCounts,
-) {
+): void {
   if (course.subGroup == 'CORE' && requiredCategories.specificCoursesCore.has(course.id)) {
     requiredCategories.specificCoursesCore.delete(course.id);
   } else if (
@@ -47,7 +51,7 @@ function processGenEdCourses(
   course: Course,
   requiredCategories: IRequiedCategories,
   counts: IElectiveCounts,
-) {
+): void {
   if (course.subGroup == 'FUND' && requiredCategories.genEdFundamentals.has(course.id)) {
     requiredCategories.genEdFundamentals.delete(course.id);
   } else if (
