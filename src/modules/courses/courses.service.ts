@@ -91,31 +91,22 @@ export class CoursesService {
   async getCourses(
     getCoursesQueryDto: GetCoursesQueryDto,
   ): Promise<PaginateResponseDto<CourseResponseDto>> {
-    const { page, perPage, id, name, day, group, subGroup, startAt, endAt, year, semester } =
+    const { page, perPage, search, day, group, subGroup, startAt, endAt, year, semester } =
       getCoursesQueryDto;
 
     const skip = (page - 1) * perPage;
     const query: Prisma.CourseWhereInput = {
-      OR: name
-        ? [
-            {
-              nameEn: {
-                contains: name,
-                mode: 'insensitive',
-              },
-            },
-            {
-              nameTh: {
-                contains: name,
-                mode: 'insensitive',
-              },
-            },
-          ]
-        : undefined,
-      id: id && {
-        contains: id,
-        mode: 'insensitive',
-      },
+      OR: [
+        {
+          nameEn: { contains: search, mode: 'insensitive' },
+        },
+        {
+          nameTh: { contains: search, mode: 'insensitive' },
+        },
+        {
+          id: { contains: search, mode: 'insensitive' },
+        },
+      ],
       sections: {
         some: {
           day,

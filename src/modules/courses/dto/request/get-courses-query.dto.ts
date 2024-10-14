@@ -19,20 +19,11 @@ import { PaginationQueryDto } from '@/shared/dto';
 
 export class GetCoursesQueryDto extends PaginationQueryDto {
   @ApiProperty({
-    example: '01020304',
-    required: false,
+    example: '01020304 or Computer Networks',
   })
   @IsString()
   @IsOptional()
-  id?: string;
-
-  @ApiProperty({
-    example: 'Computer Networks',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  name?: string;
+  search?: string;
 
   @ApiProperty({
     required: false,
