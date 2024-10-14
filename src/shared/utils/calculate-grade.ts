@@ -7,8 +7,6 @@ export function checkRemainCourse(courses: Course[]): ICalcRemainCourse {
   const requiredCategories = structuredClone(REQUIRED_CATEGOTIES_DATA);
   const counts = structuredClone(ELECTIVE_COURSE_COUNT);
 
-  console.log(courses);
-
   courses.forEach(course => {
     if (course.group == 'SPEC') {
       processSpecificCourses(course, requiredCategories, counts);
@@ -18,8 +16,6 @@ export function checkRemainCourse(courses: Course[]): ICalcRemainCourse {
       counts.freeElective += course.credit;
     }
   });
-
-  console.log(requiredCategories);
 
   return calculateRemainingCourses(requiredCategories, counts);
 }
