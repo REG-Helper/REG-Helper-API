@@ -26,6 +26,9 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'jwt-access-
       where: {
         studentId: payload.sub,
       },
+      include: {
+        transcript: true,
+      },
     });
 
     if (!user) {
