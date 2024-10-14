@@ -1,0 +1,11 @@
+model Skill2Course {
+  id        String @id @default(uuid())
+  weight    Int
+  skill_id  String
+  course_id String
+  
+  Skill  Skill  @relation(fields: [skill_id], references: [id])
+  Course Course @relation(fields: [course_id], references: [id])
+
+  @@unique([skill_id, course_id])
+}

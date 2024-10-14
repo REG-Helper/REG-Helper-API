@@ -1,0 +1,7 @@
+model Job {
+  id      String   @id @default(uuid())
+  name_en String
+  name_th String
+  
+  Skill2Job Skill2Job[]
+}

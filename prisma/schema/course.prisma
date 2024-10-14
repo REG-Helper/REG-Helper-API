@@ -9,4 +9,5 @@ model Course {
   group         CourseGroup
   subGroup      CourseSubGroup
   sections      Section[]
+  Skill2Course Skill2Course[]
 }
