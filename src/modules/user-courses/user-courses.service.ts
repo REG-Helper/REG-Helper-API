@@ -5,6 +5,7 @@ import { Course, CourseGroup, CourseSubGroup, User } from '@prisma/client';
 import { CoursesService } from '../courses/courses.service';
 import { PrismaService } from '../prisma/prisma.service';
 
+import { ICalcRemainCourse } from '@/shared/interfaces';
 import { checkRemainCourse } from '@/shared/utils/calculate-grade';
 
 @Injectable()
@@ -48,6 +49,29 @@ export class UserCoursesService {
       } as Course);
     });
 
-    return checkRemainCourse(learnerCourse);
+    const remainingIds = checkRemainCourse(learnerCourse);
+    const remainingCourse = await this.getRemainingCourseData(remainingIds);
+
+    return remainingCourse;
+  }
+
+  async getRemainingCourseData(remainingCourse: ICalcRemainCourse) {
+    const courseKeys = [
+      'specificCoursesCore',
+      'specificCoursesRequired',
+      'genEdFundamentals',
+      'genEdLanguageCommunication',
+      'genEdFacultySpecific',
+    ];
+
+    for (const key of courseKeys) {
+      remainingCourse[key] = await this.courseService.findCourses({
+        where: {
+          id: { in: remainingCourse[key] },
+        },
+      });
+    }
+
+    return remainingCourse;
   }
 }

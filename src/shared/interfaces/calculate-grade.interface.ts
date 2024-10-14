@@ -1,9 +1,11 @@
+import { Course } from '@prisma/client';
+
 export interface ICalcRemainCourse {
-  specificCoursesCore: string[];
-  specificCoursesRequired: string[];
-  genEdFundamentals: string[];
-  genEdLanguageCommunication: string[];
-  genEdFacultySpecific: string[];
+  specificCoursesCore: string[] | Course[];
+  specificCoursesRequired: string[] | Course[];
+  genEdFundamentals: string[] | Course[];
+  genEdLanguageCommunication: string[] | Course[];
+  genEdFacultySpecific: string[] | Course[];
   electiveRequired: number;
   altStudy: number;
   majorElective: number;
