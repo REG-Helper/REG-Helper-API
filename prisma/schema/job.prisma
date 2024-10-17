@@ -1,7 +1,7 @@
 model Job {
-  id      String   @id @default(uuid())
+  id      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name_en String
   name_th String
   
-  Skill2Job Skill2Job[]
+  SkillJobMapping SkillJobMapping[]
 }

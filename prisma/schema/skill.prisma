@@ -1,8 +1,8 @@
 model Skill {
-  id      String   @id @default(uuid())
-  name_en String
-  name_th String
+  id      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nameEn String
+  nameTh String
 
-  Skill2Course Skill2Course[]
-  Skill2Job    Skill2Job[]
+  SkillCourseMapping SkillCourseMapping[]
+  SkillJobMapping    SkillJobMapping[]
 }

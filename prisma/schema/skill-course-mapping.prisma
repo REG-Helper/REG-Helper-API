@@ -1,0 +1,11 @@
+model SkillCourseMapping {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  weight    Int
+  skillId  String @db.Uuid
+  courseId String 
+  
+  Skill  Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  Course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([skillId, courseId])
+}
