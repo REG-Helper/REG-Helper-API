@@ -10,7 +10,9 @@ export class UploadTranscriptResponseDto {
   @ApiProperty()
   transcript: TranscriptResponseDto;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: () => UserResponseDto,
+  })
   user: UserResponseDto;
 
   @ApiProperty()
@@ -26,7 +28,9 @@ export class UploadTranscriptResponseDto {
     missingCourses: string[],
   ): UploadTranscriptResponseDto {
     return new UploadTranscriptResponseDto({
-      transcript,
+      transcript: {
+        url: transcript.url,
+      },
       user: UserResponseDto.formatUserResponse(user),
       missingCourses,
     });

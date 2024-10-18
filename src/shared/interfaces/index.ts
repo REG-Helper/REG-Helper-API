@@ -11,3 +11,5 @@ export * from './course.interface';
 export * from './section.interface';
 
 export * from './calculate-grade.interface';
+
+export * from './user.interface';
