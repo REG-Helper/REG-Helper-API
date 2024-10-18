@@ -11,6 +11,8 @@ import * as Minio from 'minio';
 
 import { EnvService } from '../env/env.service';
 
+import { PRESIGNED_URL_EXPIRES_IN } from '@/shared/constants';
+
 @Injectable()
 export class MinioClientService {
   private readonly minioClient: Minio.Client;
@@ -50,7 +52,12 @@ export class MinioClientService {
   }
 
   async getFileUrl(filename: string): Promise<string> {
-    const fileUrl = await this.minioClient.presignedUrl('GET', this.bucketName, filename);
+    const fileUrl = await this.minioClient.presignedUrl(
+      'GET',
+      this.bucketName,
+      filename,
+      PRESIGNED_URL_EXPIRES_IN,
+    );
 
     if (!fileUrl) {
       throw new NotFoundException('File not found');

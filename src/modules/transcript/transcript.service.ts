@@ -39,15 +39,16 @@ export class TranscriptService {
 
     const result = await this.prisma.$transaction(
       async prisma => {
+        const transcript = await this.uploadTranscript(prisma as PrismaClient, user, file);
         const updatedUser = await prisma.user.update({
           where: { studentId: user.studentId },
           data: {
             firstname: extractUser.firstname,
             lastname: extractUser.lastname,
+            department: extractUser.major,
+            faculty: extractUser.degree,
           },
         });
-
-        const transcript = await this.uploadTranscript(prisma as PrismaClient, user, file);
 
         await this.updateUserCourse(prisma as PrismaClient, user, userCourses);
 
@@ -58,6 +59,10 @@ export class TranscriptService {
         timeout: 10000,
       },
     );
+
+    const url = await this.minioClientService.getFileUrl(result.transcript.url);
+
+    result.transcript.url = url;
 
     return UploadTranscriptResponseDto.formatUploadTranscriptReponse(
       result.transcript,
