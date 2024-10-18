@@ -9,5 +9,5 @@ model Course {
   group         CourseGroup
   subGroup      CourseSubGroup
   sections      Section[]
-  SkillCourseMapping SkillCourseMapping[]
+  skillCourseMappings SkillCourseMapping[]
 }

@@ -3,6 +3,6 @@ model Skill {
   nameEn String
   nameTh String
 
-  SkillCourseMapping SkillCourseMapping[]
-  SkillJobMapping    SkillJobMapping[]
+  skillCourseMappings SkillCourseMapping[]
+  skillJobMappings    SkillJobMapping[]
 }
