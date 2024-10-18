@@ -4,8 +4,8 @@ model SkillJobMapping {
   skillId String @db.Uuid
   jobId  String @db.Uuid
   
-  Skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
-  Job   Job   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  job   Job   @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   @@unique([skillId, jobId])
 }

@@ -4,8 +4,8 @@ model SkillCourseMapping {
   skillId  String @db.Uuid
   courseId String 
   
-  Skill  Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
-  Course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  skill  Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([skillId, courseId])
 }
