@@ -1,0 +1,11 @@
+model SkillJobMapping {
+  id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  weight  Int
+  skillId String @db.Uuid
+  jobId  String @db.Uuid
+  
+  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  job   Job   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([skillId, jobId])
+}
