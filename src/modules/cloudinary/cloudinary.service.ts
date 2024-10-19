@@ -5,15 +5,13 @@ import * as streamifier from 'streamifier';
 
 @Injectable()
 export class CloudinaryService {
-  async upload(
+  async uploadPdf(
     file: Express.Multer.File,
     directoryName: string,
   ): Promise<UploadApiResponse | UploadApiErrorResponse> {
-    const resourceType = this.getResourceType(file.mimetype);
-
     return new Promise((resolve, reject) => {
       const uploadStream = v2.uploader.upload_stream(
-        { folder: directoryName, resource_type: resourceType },
+        { folder: directoryName, resource_type: 'raw', format: 'pdf' },
         (error, result) => {
           if (error || !result) {
             return reject(error ?? new Error('Upload failed'));
@@ -27,29 +25,26 @@ export class CloudinaryService {
     });
   }
 
-  async deleteFileByUrl(url: string): Promise<DeleteApiResponse> {
-    const publicId = this.getPulicIdFromUrl(url);
+  async deletePdfFileByUrl(url: string): Promise<DeleteApiResponse> {
+    const publicId = this.getPublicIdFromUrl(url);
 
     return this.deleteFile(publicId);
   }
 
   private async deleteFile(publicId: string): Promise<DeleteApiResponse> {
-    return new Promise((resolve, reject) => {
-      v2.uploader.destroy(publicId, (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result);
-        }
+    try {
+      const result = await v2.api.delete_resources([publicId], {
+        type: 'upload',
+        resource_type: 'raw',
       });
-    });
+
+      return result;
+    } catch (err) {
+      throw new Error('Failed to delete pdf file', err);
+    }
   }
 
-  private getPulicIdFromUrl(url: string): string {
-    return url.split('/').slice(-2).join('/').split('.')[0];
-  }
-
-  private getResourceType(mimetype: string): 'image' | 'raw' {
-    return mimetype.startsWith('image/') ? 'image' : 'raw';
+  private getPublicIdFromUrl(url: string): string {
+    return url.split('/').slice(-2).join('/');
   }
 }

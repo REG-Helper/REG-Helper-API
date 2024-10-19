@@ -77,13 +77,17 @@ export class TranscriptService {
     });
 
     if (transcriptExists) {
-      await this.cloudinaryService.deleteFileByUrl(transcriptExists.url);
+      const res = await this.cloudinaryService.deletePdfFileByUrl(transcriptExists.url);
+
+      console.log(res);
     }
 
-    const uploadedTranscript = await this.cloudinaryService.upload(
+    const uploadedTranscript = await this.cloudinaryService.uploadPdf(
       transcriptFile,
       CLOUDINARY_FOLODER.transcript,
     );
+
+    console.log(uploadedTranscript);
 
     const upsertTranscriptData = {
       url: uploadedTranscript.url,
