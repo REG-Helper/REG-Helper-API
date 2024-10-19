@@ -24,6 +24,7 @@ export class MinioClientService {
       useSSL: this.envService.get('MINIO_USE_SSL'),
       accessKey: this.envService.get('MINIO_ACCESS_KEY'),
       secretKey: this.envService.get('MINIO_SECRET_KEY'),
+      region: 'ap-southeast-1',
     });
   }
 
