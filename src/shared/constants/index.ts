@@ -2,7 +2,7 @@ export * from './cache';
 
 export * from './domain';
 
-export * from './minio';
+export * from './cloudinary';
 
 export * from './oauth';
 
