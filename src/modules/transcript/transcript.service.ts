@@ -10,7 +10,7 @@ import { UsersService } from '../users/users.service';
 
 import { UploadTranscriptResponseDto } from './dto';
 
-import { MINIO_FOLDER } from '@/shared/constants';
+import { CLOUDINARY_FOLODER } from '@/shared/constants';
 import { IUserCourseData } from '@/shared/interfaces';
 import { parseDataFromTranscript } from '@/shared/utils';
 
@@ -82,7 +82,7 @@ export class TranscriptService {
 
     const uploadedTranscript = await this.cloudinaryService.upload(
       transcriptFile,
-      MINIO_FOLDER.transcript,
+      CLOUDINARY_FOLODER.transcript,
     );
 
     const upsertTranscriptData = {
