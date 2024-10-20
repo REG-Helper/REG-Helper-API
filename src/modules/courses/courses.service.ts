@@ -1,6 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 
-import { Course, Prisma } from '@prisma/client';
+import { Course,Prisma, SkillCourseMapping, SkillJobMapping } from '@prisma/client';
+
 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSectionDto } from '../sections/dto';
@@ -12,6 +13,7 @@ import {
   CreateCourseDto,
   GetCourseDetailQuery,
   GetCoursesQueryDto,
+  JobSearchRequestDto,
   UpdateCourseDto,
 } from './dto';
 
@@ -36,6 +38,7 @@ export class CoursesService {
       },
     },
   };
+  
 
   async createCourse(createCourseDto: CreateCourseDto): Promise<CourseWithSections> {
     const course = await this.prisma.course.findUnique({
@@ -275,5 +278,152 @@ export class CoursesService {
         id: { in: missingCourseIds },
       },
     });
+  }
+
+  async searchCoursesByJobs(jobSearchRequest: JobSearchRequestDto): Promise<PaginateResponseDto<CourseResponseDto>> {
+    const { job, page = 1, perPage = 10, year, semester } = jobSearchRequest;
+    const normalizedJob = this.normalizeSearchTerm(job);
+
+    console.log('Normalized job:', normalizedJob);
+
+    const jobSkillMappings = await this.getJobSkillMappings(normalizedJob);
+
+    console.log('Job skill mappings:', jobSkillMappings);
+
+    const skillIds = this.extractSkillIds(jobSkillMappings);
+
+    console.log('Skill IDs:', skillIds);
+
+    const courseSkillMappings = await this.getCourseSkillMappings(skillIds);
+
+    console.log('Course skill mappings:', courseSkillMappings);
+
+    const courseScores = this.calculateCourseScores(jobSkillMappings, courseSkillMappings);
+
+    console.log('Course scores:', courseScores);
+
+    const { courses, totalCourses } = await this.getRankedCourses(courseScores, page, perPage, year, semester);
+
+    console.log('Total courses:', totalCourses);
+
+    const formattedCourses = CourseResponseDto.formatCoursesResponse(courses);
+
+    console.log('Formatted courses:', formattedCourses);
+
+    return PaginateResponseDto.formatPaginationResponse({
+      data: formattedCourses,
+      page,
+      perPage,
+      total: totalCourses,
+    });
+  }
+
+  private normalizeSearchTerm(term: string): string {
+    return term;
+  }
+
+  private async getJobSkillMappings(job: string): Promise<SkillJobMapping[]> {
+    return this.prisma.skillJobMapping.findMany({
+      where: {
+        fromType: 'job',
+        from: { 
+          equals: job,
+        },
+      },
+    });
+  }
+
+  private extractSkillIds(jobSkillMappings: SkillJobMapping[]): string[] {
+    return jobSkillMappings.map(mapping => mapping.to);
+  }
+
+  private async getCourseSkillMappings(skillIds: string[]): Promise<SkillCourseMapping[]> {
+    return this.prisma.skillCourseMapping.findMany({
+      where: {
+        fromType: 'skill',
+        from: { in: skillIds },
+      },
+    });
+  }
+
+  private calculateCourseScores(
+    jobSkillMappings: SkillJobMapping[],
+    courseSkillMappings: SkillCourseMapping[]
+  ): Map<string, number> {
+    const courseScores = new Map<string, number>();
+
+    for (const jobSkill of jobSkillMappings) {
+      for (const courseSkill of courseSkillMappings) {
+        if (jobSkill.to === courseSkill.from) {
+          const score = jobSkill.weight * courseSkill.weight;
+          const currentScore = courseScores.get(courseSkill.to) ?? 0;
+
+          courseScores.set(courseSkill.to, currentScore + score);
+        }
+      }
+    }
+
+    return courseScores;
+  }
+
+
+  private async getRankedCourses(
+    courseScores: Map<string, number>,
+    page: number,
+    perPage: number,
+    year?: number,
+    semester?: number
+  ): Promise<{ courses: CourseWithSections[], totalCourses: number }> {
+    const courseNames = Array.from(courseScores.keys());
+    const skip = (page - 1) * perPage;
+    // Prepare the sections filter
+    const sectionsFilter: Prisma.SectionWhereInput = {};
+  
+    if (year !== undefined) {
+      sectionsFilter.year = year;
+    }
+  
+    if (semester !== undefined) {
+      sectionsFilter.semester = semester;
+    }
+  
+    // Fetch courses with case-insensitive name matching and include sections
+    const coursesQuery = this.prisma.course.findMany({
+      where: {
+        OR: [
+          { nameEn: { in: courseNames, mode: 'insensitive' } },
+          { nameTh: { in: courseNames, mode: 'insensitive' } },
+        ],
+      },
+      include: {
+        ...this.baseInclude,
+        sections: {
+          where: sectionsFilter,
+          ...this.baseInclude.sections,
+        },
+      },
+    });
+  
+    const countQuery = this.prisma.course.count({
+      where: {
+        OR: [
+          { nameEn: { in: courseNames, mode: 'insensitive' } },
+          { nameTh: { in: courseNames, mode: 'insensitive' } },
+        ],
+      },
+    });
+  
+    const [allCourses, totalCourses] = await Promise.all([coursesQuery, countQuery]);    // Create a new sorted array without modifying the original
+    const sortedCourses = [...allCourses].sort((a, b) => {
+      const scoreA = courseScores.get(a.nameEn) ?? courseScores.get(a.nameTh) ?? 0;
+      const scoreB = courseScores.get(b.nameEn) ?? courseScores.get(b.nameTh) ?? 0;
+
+      return scoreB - scoreA;
+    });
+  
+    // Apply pagination
+    const courses = sortedCourses.slice(skip, skip + perPage);
+  
+    return { courses, totalCourses };
   }
 }

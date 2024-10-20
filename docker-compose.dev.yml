@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=reg_helper
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=your_minio_access_key
+      - MINIO_ROOT_PASSWORD=your_minio_secret_key
+    volumes:
+      - minio_data:/data
+    command: server --console-address ":9001" /data
+
+volumes:
+  postgres_data:
+  minio_data:

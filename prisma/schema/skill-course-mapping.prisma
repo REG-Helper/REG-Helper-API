@@ -1,0 +1,12 @@
+model SkillCourseMapping {
+  id       String   @id @default(uuid())
+  from     String
+  fromTh   String
+  fromType String
+  to       String
+  toTh     String
+  toType   String
+  weight   Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

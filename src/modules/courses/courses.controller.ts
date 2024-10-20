@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { CreateSectionDto, SectionResponseDto } from '../sections/dto';
@@ -9,6 +9,7 @@ import {
   CreateCourseDto,
   GetCourseDetailQuery,
   GetCoursesQueryDto,
+  JobSearchRequestDto,
   UpdateCourseDto,
 } from './dto';
 
@@ -30,6 +31,19 @@ export class CoursesController {
 
     return CourseResponseDto.formatCourseResponse(createdCourse);
   }
+  
+  @Get('/search-by-jobs')
+  @ApiPaginatedResponse(CourseResponseDto)
+  @UsePipes(new ValidationPipe({ transform: true })) // Use a basic ValidationPipe instead
+  async searchCoursesByJobs(
+    @Query() jobSearchRequestDto: JobSearchRequestDto
+  ): Promise<PaginateResponseDto<CourseResponseDto>> {
+    console.log('Received job search request:', jobSearchRequestDto); // Add this for debugging
+
+    const courses = await this.coursesService.searchCoursesByJobs(jobSearchRequestDto);
+
+    return courses;
+  }
 
   @Put(':id')
   @ApiOkResponse({
@@ -49,6 +63,7 @@ export class CoursesController {
   async getCourses(
     @Query() getCoursesQueryDto: GetCoursesQueryDto,
   ): Promise<PaginateResponseDto<CourseResponseDto>> {
+    
     const courses = await this.coursesService.getCourses(getCoursesQueryDto);
 
     return courses;
@@ -94,4 +109,9 @@ export class CoursesController {
 
     return SectionResponseDto.formatSectionResponse(createdSection);
   }
+
+
+  
+
+
 }
