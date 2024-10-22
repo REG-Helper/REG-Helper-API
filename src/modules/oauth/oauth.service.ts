@@ -122,6 +122,9 @@ export class OAuthService {
           },
         },
       },
+      include: {
+        transcript: true,
+      },
     });
   }
 
