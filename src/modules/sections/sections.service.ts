@@ -100,6 +100,15 @@ export class SectionsService {
     return deletedSection;
   }
 
+  async getYearsAndSemesters() {
+    const yearsAndSemesters = await this.prisma.section.groupBy({
+      by: ['year', 'semester'],
+      orderBy: [{ year: 'desc' }, { semester: 'desc' }],
+    });
+
+    return yearsAndSemesters;
+  }
+
   async checkSectionExistOrThrow(
     sectionName: string | undefined,
     year: number,

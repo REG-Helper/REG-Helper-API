@@ -1,8 +1,23 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+
+import { UserRole } from '@prisma/client';
 
 import { CreateTeacherDto, TeacherResponseDto, UpdateTeacherDto } from './dto';
 import { TeachersService } from './teachers.service';
+
+import { Roles } from '@/common/decorators';
+import { AccessTokenGuard, RolesGuard } from '@/common/guards';
 
 @Controller('teachers')
 @ApiTags('teachers')
@@ -28,6 +43,8 @@ export class TeachersController {
   }
 
   @Post()
+  @Roles(UserRole.ADMIN)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @ApiCreatedResponse({
     type: TeacherResponseDto,
   })
@@ -36,6 +53,8 @@ export class TeachersController {
   }
 
   @Put(':id')
+  @Roles(UserRole.ADMIN)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @ApiOkResponse({
     type: TeacherResponseDto,
   })
@@ -47,6 +66,8 @@ export class TeachersController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMIN)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @ApiOkResponse({
     type: TeacherResponseDto,
   })
