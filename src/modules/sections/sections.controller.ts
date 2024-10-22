@@ -1,9 +1,22 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
-import { SectionResponseDto, UpdateSectionDto } from './dto';
+import { UserRole } from '@prisma/client';
+
+import { GetYearsAndSemestersResponseDto, SectionResponseDto, UpdateSectionDto } from './dto';
 import { SectionsService } from './sections.service';
 
+import { Roles } from '@/common/decorators';
+import { AccessTokenGuard, RolesGuard } from '@/common/guards';
 import { SectionWithTeachers } from '@/shared/interfaces';
 
 @Controller('sections')
@@ -21,6 +34,14 @@ export class SectionsController {
     return SectionResponseDto.formatSectionsResponse(sections);
   }
 
+  @Get('years-semesters')
+  @ApiOkResponse({
+    type: [GetYearsAndSemestersResponseDto],
+  })
+  async getYearsAndSemesters() {
+    return this.sectionsService.getYearsAndSemesters();
+  }
+
   @Get(':id')
   @ApiOkResponse({
     type: SectionResponseDto,
@@ -34,6 +55,8 @@ export class SectionsController {
   }
 
   @Put(':id')
+  @Roles(UserRole.ADMIN)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @ApiOkResponse({
     type: SectionResponseDto,
   })
@@ -47,6 +70,8 @@ export class SectionsController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMIN)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @ApiOkResponse({
     type: SectionResponseDto,
   })
