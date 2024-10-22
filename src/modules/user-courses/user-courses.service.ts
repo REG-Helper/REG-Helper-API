@@ -5,7 +5,7 @@ import { Course, CourseGroup, CourseSubGroup, User } from '@prisma/client';
 import { CoursesService } from '../courses/courses.service';
 import { PrismaService } from '../prisma/prisma.service';
 
-import { ICalcRemainCourse } from '@/shared/interfaces';
+import { ICalcCourseSyllabus } from '@/shared/interfaces';
 import { checkRemainCourse } from '@/shared/utils/calculate-grade';
 
 @Injectable()
@@ -22,10 +22,14 @@ export class UserCoursesService {
       },
       select: {
         courseId: true,
+        grade: true,
       },
     });
 
-    const userCourseIds = userCourses.map(course => course.courseId);
+    const userCourseIds = userCourses
+      .filter(course => course.grade == null || !['U', 'F'].includes(course.grade))
+      .map(course => course.courseId);
+
     const learnerCourse = await this.courseService.findCourses({
       where: {
         id: { in: userCourseIds },
@@ -38,11 +42,11 @@ export class UserCoursesService {
       },
     });
 
-    const missingCourseIds = await this.courseService.findMissingCourses(userCourseIds);
+    const missingCourseIds = await this.courseService.findMissingCourseIds(userCourseIds);
 
     missingCourseIds.forEach(course => {
       learnerCourse.push({
-        id: course.id,
+        id: course,
         group: CourseGroup.FREE_ELEC,
         subGroup: CourseSubGroup.FREE_ELEC,
         credit: 3,
@@ -55,21 +59,15 @@ export class UserCoursesService {
     return remainingCourse;
   }
 
-  async getRemainingCourseData(remainingCourse: ICalcRemainCourse) {
-    const courseKeys = [
-      'specificCoursesCore',
-      'specificCoursesRequired',
-      'genEdFundamentals',
-      'genEdLanguageCommunication',
-      'genEdFacultySpecific',
-    ];
-
-    for (const key of courseKeys) {
-      remainingCourse[key] = await this.courseService.findCourses({
-        where: {
-          id: { in: remainingCourse[key] },
-        },
-      });
+  async getRemainingCourseData(remainingCourse: ICalcCourseSyllabus) {
+    for (const key in remainingCourse) {
+      if (remainingCourse[key].courses.fixedCourses instanceof Set) {
+        remainingCourse[key].courses.fixedCourses = await this.courseService.findCourses({
+          where: {
+            id: { in: Array.from(remainingCourse[key].courses.fixedCourses) },
+          },
+        });
+      }
     }
 
     return remainingCourse;
