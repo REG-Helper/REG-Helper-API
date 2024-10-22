@@ -19,6 +19,9 @@ services:
       - MINIO_SECRET_KEY
       - MINIO_USE_SSL
       - OAUTH_REDIRECT_URL
+      - CLOUDINARY_CLOUD_NAME
+      - CLOUDINARY_API_KEY
+      - CLOUDINARY_API_SECRET
     ports:
       - '3001:3001'
     networks:

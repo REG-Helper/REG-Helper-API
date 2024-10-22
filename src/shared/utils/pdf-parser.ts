@@ -1,3 +1,5 @@
+import { BadRequestException } from '@nestjs/common';
+
 import { COURSE_REGEX, USER_INFO_REGEX } from '../constants';
 import { ITranscriptData, ITranscriptUser } from '../interfaces';
 
@@ -5,7 +7,7 @@ export const parseDataFromTranscript = (transcriptText: string): ITranscriptData
   const [userSection, , courseSection] = transcriptText.split('CREDITGRADE');
 
   if (!userSection || !courseSection) {
-    throw new Error('Invalid transcript format');
+    throw new BadRequestException('Invalid transcript format');
   }
 
   const name = extractUserInfo(userSection, USER_INFO_REGEX.name).split(' ');

@@ -3,24 +3,24 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaClient, Transcript, User } from '@prisma/client';
 import * as pdfParse from 'pdf-parse';
 
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { CoursesService } from '../courses/courses.service';
-import { MinioClientService } from '../minio-client/minio-client.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 
 import { UploadTranscriptResponseDto } from './dto';
 
-import { MINIO_FOLDER } from '@/shared/constants';
+import { CLOUDINARY_FOLODER } from '@/shared/constants';
 import { IUserCourseData } from '@/shared/interfaces';
 import { parseDataFromTranscript } from '@/shared/utils';
 
 @Injectable()
 export class TranscriptService {
   constructor(
-    private readonly minioClientService: MinioClientService,
     private readonly usersService: UsersService,
     private readonly prisma: PrismaService,
     private readonly coursesService: CoursesService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   async upload(user: User, file: Express.Multer.File): Promise<UploadTranscriptResponseDto> {
@@ -39,15 +39,16 @@ export class TranscriptService {
 
     const result = await this.prisma.$transaction(
       async prisma => {
+        const transcript = await this.uploadTranscript(prisma as PrismaClient, user, file);
         const updatedUser = await prisma.user.update({
           where: { studentId: user.studentId },
           data: {
             firstname: extractUser.firstname,
             lastname: extractUser.lastname,
+            department: extractUser.major,
+            faculty: extractUser.degree,
           },
         });
-
-        const transcript = await this.uploadTranscript(prisma as PrismaClient, user, file);
 
         await this.updateUserCourse(prisma as PrismaClient, user, userCourses);
 
@@ -76,16 +77,20 @@ export class TranscriptService {
     });
 
     if (transcriptExists) {
-      await this.minioClientService.deleteFile(transcriptExists.url);
+      const res = await this.cloudinaryService.deletePdfFileByUrl(transcriptExists.url);
+
+      console.log(res);
     }
 
-    const uploadedTranscript = await this.minioClientService.upload(
+    const uploadedTranscript = await this.cloudinaryService.uploadPdf(
       transcriptFile,
-      MINIO_FOLDER.transcript,
+      CLOUDINARY_FOLODER.transcript,
     );
 
-    const upsertTranscirptData = {
-      url: uploadedTranscript,
+    console.log(uploadedTranscript);
+
+    const upsertTranscriptData = {
+      url: uploadedTranscript.url,
       user: {
         connect: {
           studentId: user.studentId,
@@ -97,8 +102,8 @@ export class TranscriptService {
       where: {
         userId: user.studentId,
       },
-      update: upsertTranscirptData,
-      create: upsertTranscirptData,
+      update: upsertTranscriptData,
+      create: upsertTranscriptData,
     });
 
     return transcript;

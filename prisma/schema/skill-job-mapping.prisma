@@ -7,6 +7,7 @@ model SkillJobMapping {
   toTh     String
   toType   String
   weight   Int
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
