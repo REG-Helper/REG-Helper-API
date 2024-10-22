@@ -1,5 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+
+import { UserRole } from '@prisma/client';
 
 import { CreateSectionDto, SectionResponseDto } from '../sections/dto';
 
@@ -12,7 +14,8 @@ import {
   UpdateCourseDto,
 } from './dto';
 
-import { ApiPaginatedResponse } from '@/common/decorators';
+import { ApiPaginatedResponse, Roles } from '@/common/decorators';
+import { AccessTokenGuard, RolesGuard } from '@/common/guards';
 import { ParseCourseIdPipe } from '@/common/pipes';
 import { PaginateResponseDto } from '@/shared/dto';
 
@@ -22,6 +25,8 @@ export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
   @Post()
+  @Roles(UserRole.ADMIN)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @ApiCreatedResponse({
     type: CourseResponseDto,
   })
@@ -32,6 +37,8 @@ export class CoursesController {
   }
 
   @Put(':id')
+  @Roles(UserRole.ADMIN)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @ApiOkResponse({
     type: CourseResponseDto,
   })
@@ -68,6 +75,8 @@ export class CoursesController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMIN)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @ApiOkResponse({
     type: CourseResponseDto,
   })
@@ -80,6 +89,8 @@ export class CoursesController {
   }
 
   @Post(':id/section')
+  @Roles(UserRole.ADMIN)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @ApiCreatedResponse({
     type: SectionResponseDto,
   })
