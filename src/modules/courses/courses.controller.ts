@@ -1,5 +1,19 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+
+import { UserRole } from '@prisma/client';
 
 import { CreateSectionDto, SectionResponseDto } from '../sections/dto';
 
@@ -13,7 +27,8 @@ import {
   UpdateCourseDto,
 } from './dto';
 
-import { ApiPaginatedResponse } from '@/common/decorators';
+import { ApiPaginatedResponse, Roles } from '@/common/decorators';
+import { AccessTokenGuard, RolesGuard } from '@/common/guards';
 import { ParseCourseIdPipe } from '@/common/pipes';
 import { PaginateResponseDto } from '@/shared/dto';
 
@@ -23,6 +38,8 @@ export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
   @Post()
+  @Roles(UserRole.ADMIN)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @ApiCreatedResponse({
     type: CourseResponseDto,
   })
@@ -31,14 +48,14 @@ export class CoursesController {
 
     return CourseResponseDto.formatCourseResponse(createdCourse);
   }
-  
+
   @Get('/search-by-jobs')
   @ApiPaginatedResponse(CourseResponseDto)
-  @UsePipes(new ValidationPipe({ transform: true })) // Use a basic ValidationPipe instead
+  @UsePipes(new ValidationPipe({ transform: true }))
   async searchCoursesByJobs(
-    @Query() jobSearchRequestDto: JobSearchRequestDto
+    @Query() jobSearchRequestDto: JobSearchRequestDto,
   ): Promise<PaginateResponseDto<CourseResponseDto>> {
-    console.log('Received job search request:', jobSearchRequestDto); // Add this for debugging
+    console.log('Received job search request:', jobSearchRequestDto);
 
     const courses = await this.coursesService.searchCoursesByJobs(jobSearchRequestDto);
 
@@ -46,6 +63,8 @@ export class CoursesController {
   }
 
   @Put(':id')
+  @Roles(UserRole.ADMIN)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @ApiOkResponse({
     type: CourseResponseDto,
   })
@@ -63,7 +82,6 @@ export class CoursesController {
   async getCourses(
     @Query() getCoursesQueryDto: GetCoursesQueryDto,
   ): Promise<PaginateResponseDto<CourseResponseDto>> {
-    
     const courses = await this.coursesService.getCourses(getCoursesQueryDto);
 
     return courses;
@@ -83,6 +101,8 @@ export class CoursesController {
   }
 
   @Delete(':id')
+  @Roles(UserRole.ADMIN)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @ApiOkResponse({
     type: CourseResponseDto,
   })
@@ -95,6 +115,8 @@ export class CoursesController {
   }
 
   @Post(':id/section')
+  @Roles(UserRole.ADMIN)
+  @UseGuards(AccessTokenGuard, RolesGuard)
   @ApiCreatedResponse({
     type: SectionResponseDto,
   })
@@ -109,9 +131,4 @@ export class CoursesController {
 
     return SectionResponseDto.formatSectionResponse(createdSection);
   }
-
-
-  
-
-
 }
