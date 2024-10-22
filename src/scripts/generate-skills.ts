@@ -4,11 +4,11 @@ const prisma = new PrismaClient();
 const skillsData = [
   {
     nameEn: 'Database Management',
-    nameTh: 'การจัดการฐานข้อมูล'
+    nameTh: 'การจัดการฐานข้อมูล',
   },
   {
     nameEn: 'Cybersecurity',
-    nameTh: 'ความปลอดภัยทางไซเบอร์'
+    nameTh: 'ความปลอดภัยทางไซเบอร์',
   },
   // ... (include all the skills from your JSON here)
 ];
@@ -25,7 +25,11 @@ async function main() {
 }
 
 main()
-  .catch((e) => {
+  .then(async () => {
+    await prisma.$disconnect();
+  })
+  .catch(async e => {
     console.error(e);
+    await prisma.$disconnect();
     process.exit(1);
   });
