@@ -5,7 +5,7 @@ interface ICalcSyallbusCategory {
   requiredCredits: number;
   courses: {
     fixedCourses: Set<string> | Course[];
-    electiveCourses: number;
+    electiveCredits: number;
   };
 }
 
