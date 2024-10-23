@@ -1,3 +1,5 @@
+import { Grade } from '@prisma/client';
+
 export interface ITranscriptUser {
   firstname: string;
   lastname: string;
@@ -21,4 +23,5 @@ export interface ITranscriptData {
 export interface IUserCourseData {
   userId: string;
   courseId: string;
+  grade: Grade | undefined;
 }

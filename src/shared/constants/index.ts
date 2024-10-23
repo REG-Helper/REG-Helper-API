@@ -9,3 +9,5 @@ export * from './oauth';
 export * from './regex';
 
 export * from './course';
+
+export * from './grade';
