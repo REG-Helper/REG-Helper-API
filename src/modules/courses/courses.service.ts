@@ -97,17 +97,21 @@ export class CoursesService {
 
     const skip = (page - 1) * perPage;
     const query: Prisma.CourseWhereInput = {
-      OR: [
-        {
-          nameEn: { contains: search, mode: 'insensitive' },
-        },
-        {
-          nameTh: { contains: search, mode: 'insensitive' },
-        },
-        {
-          id: { contains: search, mode: 'insensitive' },
-        },
-      ],
+      ...(search
+        ? {
+            OR: [
+              {
+                nameEn: { contains: search, mode: 'insensitive' },
+              },
+              {
+                nameTh: { contains: search, mode: 'insensitive' },
+              },
+              {
+                id: { contains: search, mode: 'insensitive' },
+              },
+            ],
+          }
+        : {}),
       sections: {
         some: {
           day,
