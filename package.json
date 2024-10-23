@@ -18,7 +18,11 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "prepare": "husky"
+    "prepare": "husky",
+    "generate:skills": "ts-node src/scripts/generate-skills.ts",
+    "generate:skill-job-mappings": "ts-node src/scripts/generate-skill2job.ts",
+    "generate:skill-course-mappings": "ts-node src/scripts/generate-skill2course.ts",
+    "generate:course": "ts-node src/scripts/create-courses/generate-course.ts"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.3",

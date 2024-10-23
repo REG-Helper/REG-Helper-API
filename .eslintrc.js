@@ -12,7 +12,7 @@ module.exports = {
     'plugin:import/warnings',
     'plugin:sonarjs/recommended-legacy',
   ],
-  ignorePatterns: ['.eslintrc.js'],
+  ignorePatterns: ['.eslintrc.js', './src/scripts/*'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 6,

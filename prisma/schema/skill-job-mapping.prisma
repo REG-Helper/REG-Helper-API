@@ -1,11 +1,13 @@
 model SkillJobMapping {
-  id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  weight  Int
-  skillId String @db.Uuid
-  jobId  String @db.Uuid
-  
-  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
-  job   Job   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  id       String   @id @default(uuid())
+  from     String
+  fromTh   String
+  fromType String
+  to       String
+  toTh     String
+  toType   String
+  weight   Int
 
-  @@unique([skillId, jobId])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

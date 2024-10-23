@@ -3,5 +3,7 @@ model Job {
   nameEn String
   nameTh String
 
-  skillJobMappings SkillJobMapping[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
 }
