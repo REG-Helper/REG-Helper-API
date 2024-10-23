@@ -1,32 +1,23 @@
 import { Course } from '@prisma/client';
 
-export interface ICalcRemainCourse {
-  specificCoursesCore: string[] | Course[];
-  specificCoursesRequired: string[] | Course[];
-  genEdFundamentals: string[] | Course[];
-  genEdLanguageCommunication: string[] | Course[];
-  genEdFacultySpecific: string[] | Course[];
-  electiveRequired: number;
-  altStudy: number;
-  majorElective: number;
-  languageCommunicationElective: number;
-  genEdElective: number;
-  freeElective: number;
+interface ICalcSyallbusCategory {
+  remainingCredits: number;
+  requiredCredits: number;
+  courses: {
+    fixedCourses: Set<string> | Course[];
+    electiveCourses: number;
+  };
 }
 
-export interface IRequiedCategories {
-  specificCoursesCore: Set<string>;
-  specificCoursesRequired: Set<string>;
-  genEdFundamentals: Set<string>;
-  genEdLanguageCommunication: Set<string>;
-  genEdFacultySpecific: Set<string>;
-}
-
-export interface IElectiveCounts {
-  electiveRequiredCount: number;
-  altStudyCount: number;
-  majorElectiveCount: number;
-  languageCommunicationElectiveCount: number;
-  genEdElective: number;
-  freeElective: number;
+export interface ICalcCourseSyllabus {
+  gedEdFundamental: ICalcSyallbusCategory;
+  genEdLanguageCommunication: ICalcSyallbusCategory;
+  genEdFacultySpecific: ICalcSyallbusCategory;
+  gendEdElective: ICalcSyallbusCategory;
+  specificCore: ICalcSyallbusCategory;
+  specificReq: ICalcSyallbusCategory;
+  specificElectiveReq: ICalcSyallbusCategory;
+  specificAltStudy: ICalcSyallbusCategory;
+  specificMajorElective: ICalcSyallbusCategory;
+  freeElective: ICalcSyallbusCategory;
 }

@@ -51,4 +51,16 @@ enum OAuthProvider {
   GOOGLE
 }
 
-
+enum Grade {
+  A
+  B_PLUS
+  B
+  C_PLUS
+  C
+  D_PLUS
+  D
+  F
+  W
+  S
+  U
+}

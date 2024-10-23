@@ -1,7 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 
-import { Course,Prisma, SkillCourseMapping, SkillJobMapping } from '@prisma/client';
-
+import { Course, Prisma, SkillCourseMapping, SkillJobMapping } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSectionDto } from '../sections/dto';
@@ -38,7 +37,6 @@ export class CoursesService {
       },
     },
   };
-  
 
   async createCourse(createCourseDto: CreateCourseDto): Promise<CourseWithSections> {
     const course = await this.prisma.course.findUnique({
@@ -270,17 +268,9 @@ export class CoursesService {
     return courseIds.filter(courseId => !courseIdsExists.has(courseId));
   }
 
-  async findMissingCourses(courseIds: string[]): Promise<Course[]> {
-    const missingCourseIds = await this.findMissingCourseIds(courseIds);
-
-    return this.findCourses({
-      where: {
-        id: { in: missingCourseIds },
-      },
-    });
-  }
-
-  async searchCoursesByJobs(jobSearchRequest: JobSearchRequestDto): Promise<PaginateResponseDto<CourseResponseDto>> {
+  async searchCoursesByJobs(
+    jobSearchRequest: JobSearchRequestDto,
+  ): Promise<PaginateResponseDto<CourseResponseDto>> {
     const { job, page = 1, perPage = 10, year, semester } = jobSearchRequest;
     const normalizedJob = this.normalizeSearchTerm(job);
 
@@ -302,7 +292,13 @@ export class CoursesService {
 
     console.log('Course scores:', courseScores);
 
-    const { courses, totalCourses } = await this.getRankedCourses(courseScores, page, perPage, year, semester);
+    const { courses, totalCourses } = await this.getRankedCourses(
+      courseScores,
+      page,
+      perPage,
+      year,
+      semester,
+    );
 
     console.log('Total courses:', totalCourses);
 
@@ -326,7 +322,7 @@ export class CoursesService {
     return this.prisma.skillJobMapping.findMany({
       where: {
         fromType: 'job',
-        from: { 
+        from: {
           equals: job,
         },
       },
@@ -348,7 +344,7 @@ export class CoursesService {
 
   private calculateCourseScores(
     jobSkillMappings: SkillJobMapping[],
-    courseSkillMappings: SkillCourseMapping[]
+    courseSkillMappings: SkillCourseMapping[],
   ): Map<string, number> {
     const courseScores = new Map<string, number>();
 
@@ -366,27 +362,26 @@ export class CoursesService {
     return courseScores;
   }
 
-
   private async getRankedCourses(
     courseScores: Map<string, number>,
     page: number,
     perPage: number,
     year?: number,
-    semester?: number
-  ): Promise<{ courses: CourseWithSections[], totalCourses: number }> {
+    semester?: number,
+  ): Promise<{ courses: CourseWithSections[]; totalCourses: number }> {
     const courseNames = Array.from(courseScores.keys());
     const skip = (page - 1) * perPage;
     // Prepare the sections filter
     const sectionsFilter: Prisma.SectionWhereInput = {};
-  
+
     if (year !== undefined) {
       sectionsFilter.year = year;
     }
-  
+
     if (semester !== undefined) {
       sectionsFilter.semester = semester;
     }
-  
+
     // Fetch courses with case-insensitive name matching and include sections
     const coursesQuery = this.prisma.course.findMany({
       where: {
@@ -403,7 +398,7 @@ export class CoursesService {
         },
       },
     });
-  
+
     const countQuery = this.prisma.course.count({
       where: {
         OR: [
@@ -412,18 +407,19 @@ export class CoursesService {
         ],
       },
     });
-  
-    const [allCourses, totalCourses] = await Promise.all([coursesQuery, countQuery]);    // Create a new sorted array without modifying the original
+
+    const [allCourses, totalCourses] = await Promise.all([coursesQuery, countQuery]);
+    // Create a new sorted array without modifying the original
     const sortedCourses = [...allCourses].sort((a, b) => {
       const scoreA = courseScores.get(a.nameEn) ?? courseScores.get(a.nameTh) ?? 0;
       const scoreB = courseScores.get(b.nameEn) ?? courseScores.get(b.nameTh) ?? 0;
 
       return scoreB - scoreA;
     });
-  
+
     // Apply pagination
     const courses = sortedCourses.slice(skip, skip + perPage);
-  
+
     return { courses, totalCourses };
   }
 }
