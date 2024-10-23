@@ -82,17 +82,13 @@ export class TranscriptService {
     });
 
     if (transcriptExists) {
-      const res = await this.cloudinaryService.deletePdfFileByUrl(transcriptExists.url);
-
-      console.log(res);
+      await this.cloudinaryService.deletePdfFileByUrl(transcriptExists.url);
     }
 
     const uploadedTranscript = await this.cloudinaryService.uploadPdf(
       transcriptFile,
       CLOUDINARY_FOLODER.transcript,
     );
-
-    console.log(uploadedTranscript);
 
     const upsertTranscriptData = {
       url: uploadedTranscript.url,
@@ -119,8 +115,6 @@ export class TranscriptService {
     user: User,
     userCourses: IUserCourseData[],
   ): Promise<void> {
-    console.log(userCourses);
-
     await prisma.userCourses.deleteMany({ where: { userId: user.studentId } });
     await prisma.userCourses.createMany({ data: userCourses });
   }
