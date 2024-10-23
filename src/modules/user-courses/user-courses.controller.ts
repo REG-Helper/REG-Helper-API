@@ -1,8 +1,9 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { User } from '@prisma/client';
 
+import { GetUserRemainingCourseResponseDto } from './dto';
 import { UserCoursesService } from './user-courses.service';
 
 import { CurrentUser } from '@/common/decorators';
@@ -16,6 +17,9 @@ export class UserCoursesController {
   constructor(private readonly userCoursesService: UserCoursesService) {}
 
   @Get('remaining')
+  @ApiOkResponse({
+    type: GetUserRemainingCourseResponseDto,
+  })
   async getRemainCourse(@CurrentUser() user: User) {
     return this.userCoursesService.getRemainingCourse(user);
   }
