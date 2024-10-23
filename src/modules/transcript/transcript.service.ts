@@ -10,7 +10,7 @@ import { UsersService } from '../users/users.service';
 
 import { UploadTranscriptResponseDto } from './dto';
 
-import { CLOUDINARY_FOLODER } from '@/shared/constants';
+import { CLOUDINARY_FOLODER, GRADE } from '@/shared/constants';
 import { IUserCourseData } from '@/shared/interfaces';
 import { parseDataFromTranscript } from '@/shared/utils';
 
@@ -32,7 +32,12 @@ export class TranscriptService {
     }
 
     const { user: extractUser, courses } = parseDataFromTranscript(transcriptText);
-    const userCourses = courses.map(course => ({ courseId: course.id, userId: user.studentId }));
+    const userCourses = courses.map(course => ({
+      courseId: course.id,
+      userId: user.studentId,
+      grade: GRADE[course.grade],
+    }));
+
     const missingCourses = await this.coursesService.findMissingCourseIds(
       courses.map(course => course.id),
     );
@@ -114,6 +119,8 @@ export class TranscriptService {
     user: User,
     userCourses: IUserCourseData[],
   ): Promise<void> {
+    console.log(userCourses);
+
     await prisma.userCourses.deleteMany({ where: { userId: user.studentId } });
     await prisma.userCourses.createMany({ data: userCourses });
   }

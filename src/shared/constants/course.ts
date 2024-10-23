@@ -18,7 +18,7 @@ export const groupWithSubgroup: Map<CourseGroup, CourseSubGroup[]> = new Map([
   ],
 ]);
 
-export const REQUIRED_CATEGOTIES_DATA = {
+const REQUIRED_CATEGOTIES_DATA = {
   specificCoursesCore: new Set([
     '01076140',
     '01076141',
@@ -61,11 +61,85 @@ export const REQUIRED_CATEGOTIES_DATA = {
   genEdFacultySpecific: new Set(['90642118', '90642036']),
 };
 
-export const ELECTIVE_COURSE_COUNT = {
-  electiveRequiredCount: 0,
-  altStudyCount: 0,
-  majorElectiveCount: 0,
-  languageCommunicationElectiveCount: 0,
-  genEdElective: 0,
-  freeElective: 0,
+export const SYLLABUS_DATA = {
+  gedEdFundamental: {
+    remainingCredits: 6,
+    requiredCredits: 6,
+    courses: {
+      fixedCourses: REQUIRED_CATEGOTIES_DATA.genEdFundamentals,
+      electiveCourses: 0,
+    },
+  },
+  genEdLanguageCommunication: {
+    remainingCredits: 9,
+    requiredCredits: 9,
+    courses: {
+      fixedCourses: REQUIRED_CATEGOTIES_DATA.genEdLanguageCommunication,
+      electiveCourses: 0,
+    },
+  },
+  genEdFacultySpecific: {
+    remainingCredits: 3,
+    requiredCredits: 3,
+    courses: {
+      fixedCourses: REQUIRED_CATEGOTIES_DATA.genEdFacultySpecific,
+      electiveCourses: 0,
+    },
+  },
+  gendEdElective: {
+    remainingCredits: 12,
+    requiredCredits: 12,
+    courses: {
+      fixedCourses: new Set<string>(),
+      electiveCourses: 0,
+    },
+  },
+  specificCore: {
+    remainingCredits: 30,
+    requiredCredits: 30,
+    courses: {
+      fixedCourses: REQUIRED_CATEGOTIES_DATA.specificCoursesCore,
+      electiveCourses: 0,
+    },
+  },
+  specificReq: {
+    remainingCredits: 43,
+    requiredCredits: 43,
+    courses: {
+      fixedCourses: REQUIRED_CATEGOTIES_DATA.specificCoursesRequired,
+      electiveCourses: 0,
+    },
+  },
+  specificElectiveReq: {
+    remainingCredits: 9,
+    requiredCredits: 9,
+    courses: {
+      fixedCourses: new Set<string>(),
+      electiveCourses: 0,
+    },
+  },
+  specificAltStudy: {
+    remainingCredits: 6,
+    requiredCredits: 6,
+    courses: {
+      fixedCourses: new Set<string>(),
+      electiveCourses: 0,
+    },
+  },
+  specificMajorElective: {
+    remainingCredits: 12,
+    requiredCredits: 12,
+    courses: {
+      fixedCourses: new Set<string>(),
+      electiveCourses: 0,
+    },
+  },
+  freeElective: {
+    remainingCredits: 6,
+    requiredCredits: 6,
+    courses: {
+      fixedCourses: new Set<string>(),
+      electiveCourses: 0,
+    },
+  },
 };

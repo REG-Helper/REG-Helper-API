@@ -266,14 +266,4 @@ export class CoursesService {
 
     return courseIds.filter(courseId => !courseIdsExists.has(courseId));
   }
-
-  async findMissingCourses(courseIds: string[]): Promise<Course[]> {
-    const missingCourseIds = await this.findMissingCourseIds(courseIds);
-
-    return this.findCourses({
-      where: {
-        id: { in: missingCourseIds },
-      },
-    });
-  }
 }
