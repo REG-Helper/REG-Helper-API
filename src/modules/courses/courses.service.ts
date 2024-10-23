@@ -273,25 +273,10 @@ export class CoursesService {
   ): Promise<PaginateResponseDto<CourseResponseDto>> {
     const { job, page = 1, perPage = 10, year, semester } = jobSearchRequest;
     const normalizedJob = this.normalizeSearchTerm(job);
-
-    console.log('Normalized job:', normalizedJob);
-
     const jobSkillMappings = await this.getJobSkillMappings(normalizedJob);
-
-    console.log('Job skill mappings:', jobSkillMappings);
-
     const skillIds = this.extractSkillIds(jobSkillMappings);
-
-    console.log('Skill IDs:', skillIds);
-
     const courseSkillMappings = await this.getCourseSkillMappings(skillIds);
-
-    console.log('Course skill mappings:', courseSkillMappings);
-
     const courseScores = this.calculateCourseScores(jobSkillMappings, courseSkillMappings);
-
-    console.log('Course scores:', courseScores);
-
     const { courses, totalCourses } = await this.getRankedCourses(
       courseScores,
       page,
@@ -300,11 +285,7 @@ export class CoursesService {
       semester,
     );
 
-    console.log('Total courses:', totalCourses);
-
     const formattedCourses = CourseResponseDto.formatCoursesResponse(courses);
-
-    console.log('Formatted courses:', formattedCourses);
 
     return PaginateResponseDto.formatPaginationResponse({
       data: formattedCourses,

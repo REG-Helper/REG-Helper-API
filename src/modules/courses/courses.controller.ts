@@ -55,8 +55,6 @@ export class CoursesController {
   async searchCoursesByJobs(
     @Query() jobSearchRequestDto: JobSearchRequestDto,
   ): Promise<PaginateResponseDto<CourseResponseDto>> {
-    console.log('Received job search request:', jobSearchRequestDto);
-
     const courses = await this.coursesService.searchCoursesByJobs(jobSearchRequestDto);
 
     return courses;
