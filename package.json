@@ -41,7 +41,6 @@
     "class-validator": "^0.14.1",
     "cloudinary": "^2.5.1",
     "minio": "^8.0.1",
-    "node-fetch": "^3.3.2",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pdf-parse": "^1.1.1",
