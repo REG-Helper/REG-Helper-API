@@ -4,6 +4,7 @@ import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 
 import { GetUserRemainingCourseResponseDto } from './dto';
+import { UserSkillResponseDto } from './dto/response/get-user-skills.dto';
 import { UserCoursesService } from './user-courses.service';
 
 import { CurrentUser } from '@/common/decorators';
@@ -22,5 +23,15 @@ export class UserCoursesController {
   })
   async getRemainCourse(@CurrentUser() user: User) {
     return this.userCoursesService.getRemainingCourse(user);
+  }
+
+  @Get('skills')
+  @ApiOkResponse({
+    type: [UserSkillResponseDto],
+    description: 'Get all skills from user\'s courses with their total weights',
+  })
+  async getUserSkills(@CurrentUser() user: User): Promise<UserSkillResponseDto[]> {
+    // console.log('UserCoursesController -> getUserSkills -> user', user);
+    return this.userCoursesService.getUserSkills(user);
   }
 }

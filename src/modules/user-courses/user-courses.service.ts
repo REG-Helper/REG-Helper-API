@@ -1,12 +1,39 @@
 import { Injectable } from '@nestjs/common';
 
-import { Course, CourseGroup, CourseSubGroup, User } from '@prisma/client';
+import {
+  Course,
+  CourseGroup,
+  CourseSubGroup,
+  Prisma,
+  SkillCourseMapping,
+  User,
+} from '@prisma/client';
 
 import { CoursesService } from '../courses/courses.service';
 import { PrismaService } from '../prisma/prisma.service';
 
+import { UserSkillResponseDto } from './dto/response/get-user-skills.dto';
+
 import { ICalcCourseSyllabus } from '@/shared/interfaces';
 import { checkRemainCourse } from '@/shared/utils/calculate-grade';
+interface CourseNames {
+  nameEn: string;
+  nameTh: string;
+}
+
+interface SkillWeight {
+  nameEn: string;
+  nameTh: string;
+  weight: number;
+}
+
+type UserCourseSelect = Prisma.UserCoursesGetPayload<{
+  select: { courseId: true };
+}>;
+
+type CourseSelect = Prisma.CourseGetPayload<{
+  select: { id: true; nameEn: true; nameTh: true };
+}>;
 
 @Injectable()
 export class UserCoursesService {
@@ -71,5 +98,117 @@ export class UserCoursesService {
     }
 
     return remainingCourse;
+  }
+
+  async getUserSkills(user: User): Promise<UserSkillResponseDto[]> {
+    const userCourses = await this.getPassedUserCourses(user.studentId);
+    // console.log('UserCoursesService -> getUserSkills -> userCourses', userCourses);
+    const courseIds = this.extractCourseIds(userCourses);
+    // console.log('UserCoursesService -> getUserSkills -> courseIds', courseIds);
+    const courses = await this.getCourseDetails(courseIds);
+    // console.log('UserCoursesService -> getUserSkills -> courses', courses);
+    const courseMap = this.createCourseNameMap(courses);
+    // console.log('UserCoursesService -> getUserSkills -> courseMap', courseMap);
+    const courseNames = Array.from(courseMap.values()).map(course => course.nameEn);
+    // console.log('UserCoursesService -> getUserSkills -> courseNames', courseNames);
+    const skillMappings = await this.getSkillMappings(courseNames);
+    // console.log('UserCoursesService -> getUserSkills -> skillMappings', skillMappings);
+    const skillWeights = this.calculateSkillWeights(skillMappings, courseMap);
+
+    return this.formatAndSortResults(skillWeights);
+  }
+
+  private async getPassedUserCourses(studentId: string): Promise<UserCourseSelect[]> {
+    const result = await this.prisma.userCourses.findMany({
+      where: {
+        userId: studentId,
+        OR: [{ grade: null }, { NOT: { grade: { in: ['F', 'U'] } } }],
+      },
+      select: {
+        courseId: true,
+      },
+    });
+
+    return result;
+  }
+
+  private extractCourseIds(userCourses: UserCourseSelect[]): string[] {
+    return userCourses.map(course => course.courseId);
+  }
+
+  private async getCourseDetails(courseIds: string[]): Promise<CourseSelect[]> {
+    const result = await this.prisma.course.findMany({
+      where: {
+        id: {
+          in: courseIds,
+        },
+      },
+      select: {
+        id: true,
+        nameEn: true,
+        nameTh: true,
+      },
+    });
+
+    return result;
+  }
+
+  private createCourseNameMap(courses: CourseSelect[]): Map<string, CourseNames> {
+    return new Map(
+      courses.map(course => [
+        course.id,
+        {
+          nameEn: course.nameEn,
+          nameTh: course.nameTh,
+        },
+      ]),
+    );
+  }
+
+  private async getSkillMappings(courseNames: string[]): Promise<SkillCourseMapping[]> {
+    return this.prisma.skillCourseMapping.findMany({
+      where: {
+        toType: 'subject',
+        to: {
+          in: courseNames,
+        },
+      },
+    });
+  }
+
+  private calculateSkillWeights(
+    skillMappings: SkillCourseMapping[],
+    courseMap: Map<string, CourseNames>,
+  ): Map<string, SkillWeight> {
+    const skillWeights = new Map<string, SkillWeight>();
+
+    for (const mapping of skillMappings) {
+      const key = mapping.from;
+      const courseName = mapping.to;
+      const courseExists = Array.from(courseMap.values()).some(
+        course => course.nameEn === courseName,
+      );
+
+      if (courseExists) {
+        const current = skillWeights.get(key) || {
+          nameEn: mapping.from,
+          nameTh: mapping.fromTh,
+          weight: 0,
+        };
+
+        skillWeights.set(key, {
+          ...current,
+          weight: current.weight + mapping.weight,
+        });
+      }
+    }
+
+    return skillWeights;
+  }
+
+  private formatAndSortResults(skillWeights: Map<string, SkillWeight>): UserSkillResponseDto[] {
+    return Array.from(skillWeights.values())
+      .map(skill => new UserSkillResponseDto(skill))
+      .sort((a, b) => b.weight - a.weight);
   }
 }
