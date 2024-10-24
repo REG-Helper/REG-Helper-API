@@ -1,14 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { UserRole } from '@prisma/client';
@@ -45,17 +35,6 @@ export class CoursesController {
 
     return CourseResponseDto.formatCourseResponse(createdCourse);
   }
-
-  // @Get('/search-by-jobs')
-  // @ApiPaginatedResponse(CourseResponseDto)
-  // @UsePipes(new ValidationPipe({ transform: true }))
-  // async searchCoursesByJobs(
-  //   @Query() jobSearchRequestDto: JobSearchRequestDto,
-  // ): Promise<PaginateResponseDto<CourseResponseDto>> {
-  //   const courses = await this.coursesService.searchCoursesByJobs(jobSearchRequestDto);
-
-  //   return courses;
-  // }
 
   @Put(':id')
   @Roles(UserRole.ADMIN)
