@@ -26,6 +26,14 @@ export class GetCoursesQueryDto extends PaginationQueryDto {
   search?: string;
 
   @ApiProperty({
+    example: 'Software Engineer',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  job?: string;
+
+  @ApiProperty({
     required: false,
     example: `${DayOfWeek.FRIDAY} ex. ${Object.values(DayOfWeek).join(', ')}`,
   })
