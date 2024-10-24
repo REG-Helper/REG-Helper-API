@@ -31,7 +31,6 @@ export class UserCoursesController {
     description: 'Get all skills from user\'s courses with their total weights',
   })
   async getUserSkills(@CurrentUser() user: User): Promise<UserSkillResponseDto[]> {
-    // console.log('UserCoursesController -> getUserSkills -> user', user);
     return this.userCoursesService.getUserSkills(user);
   }
 }

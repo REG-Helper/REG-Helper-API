@@ -102,17 +102,11 @@ export class UserCoursesService {
 
   async getUserSkills(user: User): Promise<UserSkillResponseDto[]> {
     const userCourses = await this.getPassedUserCourses(user.studentId);
-    // console.log('UserCoursesService -> getUserSkills -> userCourses', userCourses);
     const courseIds = this.extractCourseIds(userCourses);
-    // console.log('UserCoursesService -> getUserSkills -> courseIds', courseIds);
     const courses = await this.getCourseDetails(courseIds);
-    // console.log('UserCoursesService -> getUserSkills -> courses', courses);
     const courseMap = this.createCourseNameMap(courses);
-    // console.log('UserCoursesService -> getUserSkills -> courseMap', courseMap);
     const courseNames = Array.from(courseMap.values()).map(course => course.nameEn);
-    // console.log('UserCoursesService -> getUserSkills -> courseNames', courseNames);
     const skillMappings = await this.getSkillMappings(courseNames);
-    // console.log('UserCoursesService -> getUserSkills -> skillMappings', skillMappings);
     const skillWeights = this.calculateSkillWeights(skillMappings, courseMap);
 
     return this.formatAndSortResults(skillWeights);
