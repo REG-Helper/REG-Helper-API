@@ -92,10 +92,23 @@ export class CoursesService {
   async getCourses(
     getCoursesQueryDto: GetCoursesQueryDto,
   ): Promise<PaginateResponseDto<CourseResponseDto>> {
-    const { page, perPage, search, day, group, subGroup, startAt, endAt, year, semester } =
+    const { page, perPage, search, day, group, subGroup, startAt, endAt, year, semester, job } =
       getCoursesQueryDto;
 
     const skip = (page - 1) * perPage;
+
+    let jobRelatedCourseIds: string[] = [];
+
+    if (job) {
+      const normalizedJob = this.normalizeSearchTerm(job);
+      const jobSkillMappings = await this.getJobSkillMappings(normalizedJob);
+      const skillIds = this.extractSkillIds(jobSkillMappings);
+      const courseSkillMappings = await this.getCourseSkillMappings(skillIds);
+      const courseScores = this.calculateCourseScores(jobSkillMappings, courseSkillMappings);
+
+      jobRelatedCourseIds = Array.from(courseScores.keys());
+    }
+
     const query: Prisma.CourseWhereInput = {
       ...(search
         ? {
@@ -112,15 +125,16 @@ export class CoursesService {
             ],
           }
         : {}),
+      ...(job
+        ? {
+            OR: [{ nameEn: { in: jobRelatedCourseIds, mode: 'insensitive' } }],
+          }
+        : {}),
       sections: {
         some: {
           day,
-          startAt: startAt && {
-            gte: startAt,
-          },
-          endAt: endAt && {
-            lte: endAt,
-          },
+          startAt: startAt && { gte: startAt },
+          endAt: endAt && { lte: endAt },
           year,
           semester,
         },

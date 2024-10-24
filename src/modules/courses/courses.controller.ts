@@ -8,8 +8,6 @@ import {
   Put,
   Query,
   UseGuards,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
@@ -23,7 +21,6 @@ import {
   CreateCourseDto,
   GetCourseDetailQuery,
   GetCoursesQueryDto,
-  JobSearchRequestDto,
   UpdateCourseDto,
 } from './dto';
 
@@ -49,16 +46,16 @@ export class CoursesController {
     return CourseResponseDto.formatCourseResponse(createdCourse);
   }
 
-  @Get('/search-by-jobs')
-  @ApiPaginatedResponse(CourseResponseDto)
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async searchCoursesByJobs(
-    @Query() jobSearchRequestDto: JobSearchRequestDto,
-  ): Promise<PaginateResponseDto<CourseResponseDto>> {
-    const courses = await this.coursesService.searchCoursesByJobs(jobSearchRequestDto);
+  // @Get('/search-by-jobs')
+  // @ApiPaginatedResponse(CourseResponseDto)
+  // @UsePipes(new ValidationPipe({ transform: true }))
+  // async searchCoursesByJobs(
+  //   @Query() jobSearchRequestDto: JobSearchRequestDto,
+  // ): Promise<PaginateResponseDto<CourseResponseDto>> {
+  //   const courses = await this.coursesService.searchCoursesByJobs(jobSearchRequestDto);
 
-    return courses;
-  }
+  //   return courses;
+  // }
 
   @Put(':id')
   @Roles(UserRole.ADMIN)
