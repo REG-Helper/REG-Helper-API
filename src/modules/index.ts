@@ -25,3 +25,5 @@ export * from './skills/skills.module';
 export * from './skill-job-mapping/skill-job-mapping.module';
 
 export * from './skill-course-mapping/skill-course-mapping.module';
+
+export * from './jobs/jobs.module';

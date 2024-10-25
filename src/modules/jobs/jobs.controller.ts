@@ -1,6 +1,9 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
+import { SkillJobMappingResponseDto } from '../skill-job-mapping/dto';
+import { SkillJobMappingService } from '../skill-job-mapping/skill-job-mapping.service';
+
 import { CreateJobDto, JobResponseDto, UpdateJobDto } from './dto';
 import { JobsService } from './jobs.service';
 
@@ -8,7 +11,10 @@ import { JobsService } from './jobs.service';
 @ApiTags('jobs')
 // @UseGuards(AccessTokenGuard)
 export class JobsController {
-  constructor(private readonly jobsService: JobsService) {}
+  constructor(
+    private readonly jobsService: JobsService,
+    private readonly skillJobMappingService: SkillJobMappingService,
+  ) {}
 
   @Post()
   @ApiCreatedResponse({
@@ -22,12 +28,12 @@ export class JobsController {
 
   @Get()
   @ApiOkResponse({
-    type: [JobResponseDto],
+    type: [SkillJobMappingResponseDto],
   })
-  async getJobs(): Promise<JobResponseDto[]> {
-    const jobs = await this.jobsService.getJobs();
+  async getJobs(): Promise<SkillJobMappingResponseDto[]> {
+    const mappings = await this.skillJobMappingService.getJobs();
 
-    return JobResponseDto.formatJobsResponse(jobs);
+    return mappings.map(SkillJobMappingResponseDto.fromEntity);
   }
 
   @Get(':id')

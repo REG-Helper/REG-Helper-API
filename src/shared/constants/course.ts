@@ -67,7 +67,7 @@ export const SYLLABUS_DATA = {
     requiredCredits: 6,
     courses: {
       fixedCourses: REQUIRED_CATEGOTIES_DATA.genEdFundamentals,
-      electiveCourses: 0,
+      electiveCredits: 0,
     },
   },
   genEdLanguageCommunication: {
@@ -75,7 +75,7 @@ export const SYLLABUS_DATA = {
     requiredCredits: 9,
     courses: {
       fixedCourses: REQUIRED_CATEGOTIES_DATA.genEdLanguageCommunication,
-      electiveCourses: 0,
+      electiveCredits: 3,
     },
   },
   genEdFacultySpecific: {
@@ -83,7 +83,7 @@ export const SYLLABUS_DATA = {
     requiredCredits: 3,
     courses: {
       fixedCourses: REQUIRED_CATEGOTIES_DATA.genEdFacultySpecific,
-      electiveCourses: 0,
+      electiveCredits: 0,
     },
   },
   gendEdElective: {
@@ -91,7 +91,7 @@ export const SYLLABUS_DATA = {
     requiredCredits: 12,
     courses: {
       fixedCourses: new Set<string>(),
-      electiveCourses: 0,
+      electiveCredits: 12,
     },
   },
   specificCore: {
@@ -99,7 +99,7 @@ export const SYLLABUS_DATA = {
     requiredCredits: 30,
     courses: {
       fixedCourses: REQUIRED_CATEGOTIES_DATA.specificCoursesCore,
-      electiveCourses: 0,
+      electiveCredits: 0,
     },
   },
   specificReq: {
@@ -107,7 +107,7 @@ export const SYLLABUS_DATA = {
     requiredCredits: 43,
     courses: {
       fixedCourses: REQUIRED_CATEGOTIES_DATA.specificCoursesRequired,
-      electiveCourses: 0,
+      electiveCredits: 0,
     },
   },
   specificElectiveReq: {
@@ -115,7 +115,7 @@ export const SYLLABUS_DATA = {
     requiredCredits: 9,
     courses: {
       fixedCourses: new Set<string>(),
-      electiveCourses: 0,
+      electiveCredits: 9,
     },
   },
   specificAltStudy: {
@@ -123,7 +123,7 @@ export const SYLLABUS_DATA = {
     requiredCredits: 6,
     courses: {
       fixedCourses: new Set<string>(),
-      electiveCourses: 0,
+      electiveCredits: 6,
     },
   },
   specificMajorElective: {
@@ -131,7 +131,7 @@ export const SYLLABUS_DATA = {
     requiredCredits: 12,
     courses: {
       fixedCourses: new Set<string>(),
-      electiveCourses: 0,
+      electiveCredits: 12,
     },
   },
   freeElective: {
@@ -139,7 +139,7 @@ export const SYLLABUS_DATA = {
     requiredCredits: 6,
     courses: {
       fixedCourses: new Set<string>(),
-      electiveCourses: 0,
+      electiveCredits: 6,
     },
   },
 };

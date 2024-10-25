@@ -1,16 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-  Query,
-  UseGuards,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { UserRole } from '@prisma/client';
@@ -23,7 +11,6 @@ import {
   CreateCourseDto,
   GetCourseDetailQuery,
   GetCoursesQueryDto,
-  JobSearchRequestDto,
   UpdateCourseDto,
 } from './dto';
 
@@ -47,17 +34,6 @@ export class CoursesController {
     const createdCourse = await this.coursesService.createCourse(createCourseDto);
 
     return CourseResponseDto.formatCourseResponse(createdCourse);
-  }
-
-  @Get('/search-by-jobs')
-  @ApiPaginatedResponse(CourseResponseDto)
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async searchCoursesByJobs(
-    @Query() jobSearchRequestDto: JobSearchRequestDto,
-  ): Promise<PaginateResponseDto<CourseResponseDto>> {
-    const courses = await this.coursesService.searchCoursesByJobs(jobSearchRequestDto);
-
-    return courses;
   }
 
   @Put(':id')

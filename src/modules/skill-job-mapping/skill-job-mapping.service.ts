@@ -14,8 +14,19 @@ export class SkillJobMappingService {
     });
   }
 
-  async getAllMappings() {
-    return this.prisma.skillJobMapping.findMany();
+  async getJobs() {
+    const allJobs = await this.prisma.skillJobMapping.findMany({
+      where: {
+        fromType: 'job',
+      },
+      distinct: ['from'],
+      select: {
+        from: true,
+        fromTh: true,
+      },
+    });
+
+    return allJobs;
   }
 
   async createMany(createDtos: CreateSkillJobMappingDto[]) {
