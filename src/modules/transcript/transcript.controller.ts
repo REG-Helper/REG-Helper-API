@@ -18,6 +18,7 @@ import { TranscriptService } from './transcript.service';
 
 import { CurrentUser } from '@/common/decorators';
 import { AccessTokenGuard } from '@/common/guards';
+import { ITranscriptUser, IUserCourseData } from '@/shared/interfaces';
 
 @Controller('transcript')
 @ApiTags('transcript')
@@ -49,5 +50,35 @@ export class TranscriptController {
     file: Express.Multer.File,
   ): Promise<UploadTranscriptResponseDto> {
     return this.transcriptService.upload(user, file);
+  }
+
+  @Post('verify')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    type: UploadTranscriptDto,
+  })
+  @UseGuards(AccessTokenGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOkResponse({
+    type: [UploadTranscriptResponseDto],
+  })
+  async verifyTranscriptData(
+    @CurrentUser() user: User,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: 'application/pdf' }),
+        ],
+        fileIsRequired: true,
+      }),
+    )
+    file: Express.Multer.File,
+  ): Promise<{
+    extractUser: ITranscriptUser;
+    userCourses: IUserCourseData[];
+    missingCourses: string[];
+  }> {
+    return this.transcriptService.verifyTranscriptData(user, file);
   }
 }
