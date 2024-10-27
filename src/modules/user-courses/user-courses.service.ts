@@ -6,12 +6,14 @@ import {
   CourseSubGroup,
   Prisma,
   SkillCourseMapping,
+  SkillJobMapping,
   User,
 } from '@prisma/client';
 
 import { CoursesService } from '../courses/courses.service';
 import { PrismaService } from '../prisma/prisma.service';
 
+import { JobScoreDto, TopJobsResponseDto } from './dto/response/get-top-jobs.dto';
 import { UserSkillResponseDto } from './dto/response/get-user-skills.dto';
 
 import { ICalcCourseSyllabus } from '@/shared/interfaces';
@@ -25,6 +27,12 @@ interface SkillWeight {
   nameEn: string;
   nameTh: string;
   weight: number;
+}
+
+interface JobScore {
+  nameEn: string;
+  nameTh: string;
+  score: number;
 }
 
 type UserCourseSelect = Prisma.UserCoursesGetPayload<{
@@ -204,5 +212,97 @@ export class UserCoursesService {
     return Array.from(skillWeights.values())
       .map(skill => new UserSkillResponseDto(skill))
       .sort((a, b) => b.weight - a.weight);
+  }
+
+  async getTopJobsForUser(user: User): Promise<TopJobsResponseDto> {
+    const userCourseSkills = await this.getUserCourseSkills(user.studentId);
+    const jobScores = await this.calculateJobScores(userCourseSkills);
+    const topJobs = this.getTopThreeJobs(jobScores, userCourseSkills.length);
+
+    return new TopJobsResponseDto({ topJobs });
+  }
+
+  private async getUserCourseSkills(studentId: string) {
+    const userCourses = await this.getPassedUserCourses(studentId);
+    const courseIds = this.extractCourseIds(userCourses);
+    const courses = await this.getCourseDetails(courseIds);
+    const courseNames = courses.map(course => course.nameEn);
+
+    return this.prisma.skillCourseMapping.findMany({
+      where: {
+        toType: 'subject',
+        to: {
+          in: courseNames,
+        },
+      },
+    });
+  }
+
+  private async getJobSkillMappings(skillIds: string[]) {
+    return this.prisma.skillJobMapping.findMany({
+      where: {
+        toType: 'skill',
+        to: {
+          in: skillIds,
+        },
+      },
+    });
+  }
+
+  private async calculateJobScores(
+    courseSkillMappings: SkillCourseMapping[],
+  ): Promise<Map<string, JobScore>> {
+    const userSkillIds = this.extractUniqueSkillIds(courseSkillMappings);
+    const jobSkillMappings = await this.getJobSkillMappings(userSkillIds);
+    const jobScores = new Map<string, JobScore>();
+
+    for (const courseSkill of courseSkillMappings) {
+      for (const jobSkill of jobSkillMappings) {
+        if (courseSkill.from === jobSkill.to) {
+          this.updateJobScore(jobScores, jobSkill, courseSkill.weight * jobSkill.weight);
+        }
+      }
+    }
+
+    return jobScores;
+  }
+
+  private extractUniqueSkillIds(courseSkillMappings: SkillCourseMapping[]): string[] {
+    return [...new Set(courseSkillMappings.map(mapping => mapping.from))];
+  }
+
+  private updateJobScore(
+    jobScores: Map<string, JobScore>,
+    jobSkill: SkillJobMapping,
+    scoreIncrement: number,
+  ): void {
+    const currentScore = jobScores.get(jobSkill.from)?.score ?? 0;
+
+    jobScores.set(jobSkill.from, {
+      nameEn: jobSkill.from,
+      nameTh: jobSkill.fromTh,
+      score: currentScore + scoreIncrement,
+    });
+  }
+
+  private getTopThreeJobs(jobScores: Map<string, JobScore>, totalSkills: number): JobScoreDto[] {
+    return Array.from(jobScores.values())
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3)
+      .map(job => this.createJobScoreDto(job, totalSkills));
+  }
+
+  private createJobScoreDto(job: JobScore, totalSkills: number): JobScoreDto {
+    return new JobScoreDto({
+      nameEn: job.nameEn,
+      nameTh: job.nameTh,
+      relevancyScore: this.calculateRelevancyScore(job.score, totalSkills),
+    });
+  }
+
+  private calculateRelevancyScore(score: number, totalSkills: number): number {
+    const maxPossibleScore = totalSkills * 25; // Maximum weight product is 5 * 5 = 25
+
+    return Math.round((score / maxPossibleScore) * 100);
   }
 }
