@@ -4,6 +4,7 @@ import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 
 import { GetUserRemainingCourseResponseDto } from './dto';
+import { TopJobsResponseDto } from './dto/response/get-top-jobs.dto';
 import { UserSkillResponseDto } from './dto/response/get-user-skills.dto';
 import { UserCoursesService } from './user-courses.service';
 
@@ -32,5 +33,15 @@ export class UserCoursesController {
   })
   async getUserSkills(@CurrentUser() user: User): Promise<UserSkillResponseDto[]> {
     return this.userCoursesService.getUserSkills(user);
+  }
+
+  @Get('top-jobs')
+  @UseGuards(AccessTokenGuard, TranscriptGuard)
+  @ApiOkResponse({
+    type: TopJobsResponseDto,
+    description: 'Get top 3 most relevant jobs based on user\'s courses',
+  })
+  async getTopJobs(@CurrentUser() user: User): Promise<TopJobsResponseDto> {
+    return this.userCoursesService.getTopJobsForUser(user);
   }
 }
