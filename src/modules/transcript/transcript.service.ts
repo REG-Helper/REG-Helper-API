@@ -11,7 +11,7 @@ import { UsersService } from '../users/users.service';
 import { UploadTranscriptResponseDto } from './dto';
 
 import { CLOUDINARY_FOLODER, GRADE } from '@/shared/constants';
-import { IUserCourseData } from '@/shared/interfaces';
+import { ITranscriptUser, IUserCourseData } from '@/shared/interfaces';
 import { parseDataFromTranscript } from '@/shared/utils';
 
 @Injectable()
@@ -23,7 +23,14 @@ export class TranscriptService {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  async upload(user: User, file: Express.Multer.File): Promise<UploadTranscriptResponseDto> {
+  async verifyTranscriptData(
+    user: User,
+    file: Express.Multer.File,
+  ): Promise<{
+    extractUser: ITranscriptUser;
+    userCourses: IUserCourseData[];
+    missingCourses: string[];
+  }> {
     const parsedTranscript = await pdfParse(file.buffer);
     const transcriptText = parsedTranscript.text;
 
@@ -40,6 +47,15 @@ export class TranscriptService {
 
     const missingCourses = await this.coursesService.findMissingCourseIds(
       courses.map(course => course.id),
+    );
+
+    return { extractUser, userCourses, missingCourses };
+  }
+
+  async upload(user: User, file: Express.Multer.File): Promise<UploadTranscriptResponseDto> {
+    const { extractUser, userCourses, missingCourses } = await this.verifyTranscriptData(
+      user,
+      file,
     );
 
     const result = await this.prisma.$transaction(
