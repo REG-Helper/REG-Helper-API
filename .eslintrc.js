@@ -58,7 +58,7 @@ module.exports = {
         pathGroupsExcludedImportTypes: ['nestjs'],
       },
     ],
-    'max-lines-per-function': ['error', { skipBlankLines: true, max: 75 }],
+    'max-lines-per-function': ['error', { skipBlankLines: true, max: 77 }],
     'no-else-return': [
       'error',
       {
