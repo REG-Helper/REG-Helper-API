@@ -39,6 +39,11 @@ export class TranscriptService {
     }
 
     const { user: extractUser, courses } = parseDataFromTranscript(transcriptText);
+
+    if (user.studentId !== extractUser.studentId) {
+      throw new BadRequestException(`Student ID in transcript file does not match with the user`);
+    }
+
     const userCourses = courses.map(course => ({
       courseId: course.id,
       userId: user.studentId,
