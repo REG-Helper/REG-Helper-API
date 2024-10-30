@@ -12,7 +12,6 @@ import {
   CreateCourseDto,
   GetCourseDetailQuery,
   GetCoursesQueryDto,
-  JobSearchRequestDto,
   UpdateCourseDto,
 } from './dto';
 
@@ -89,23 +88,56 @@ export class CoursesService {
     return updatedCourse;
   }
 
+  private extractSkillIds(jobSkillMappings: SkillJobMapping[]): string[] {
+    // Extract unique skill IDs using Set to avoid duplicates
+    const uniqueSkillIds = new Set(jobSkillMappings.map(mapping => mapping.to));
+
+    return Array.from(uniqueSkillIds);
+  }
+
+  private async getCourseSkillMappings(skillIds: string[]): Promise<SkillCourseMapping[]> {
+    return this.prisma.skillCourseMapping.findMany({
+      where: {
+        fromType: 'skill',
+        from: { in: skillIds },
+      },
+    });
+  }
+
+  private async getJobSkillMappings(jobs: string[]) {
+    return this.prisma.skillJobMapping.findMany({
+      where: {
+        fromType: 'job',
+        from: {
+          in: jobs,
+        },
+      },
+    });
+  }
+
   async getCourses(
     getCoursesQueryDto: GetCoursesQueryDto,
   ): Promise<PaginateResponseDto<CourseResponseDto>> {
     const { page, perPage, search, day, group, subGroup, startAt, endAt, year, semester, job } =
       getCoursesQueryDto;
 
-    const skip = (page - 1) * perPage;
-
     let jobRelatedCourseIds: string[] = [];
+    let courseScoresMap: Map<string, number> = new Map();
 
     if (job) {
       const normalizedJob = this.normalizeSearchTerm(job);
-      const jobSkillMappings = await this.getJobSkillMappings(normalizedJob);
+      const jobSkillMappings = await this.getJobSkillMappings([normalizedJob]);
       const skillIds = this.extractSkillIds(jobSkillMappings);
       const courseSkillMappings = await this.getCourseSkillMappings(skillIds);
-      const courseScores = this.calculateCourseScores(jobSkillMappings, courseSkillMappings);
+      const courseScores = await this.calculateCourseScores(jobSkillMappings, courseSkillMappings);
+      const maxScores = await this.calculateMaxCourseScores(courseSkillMappings);
 
+      courseScoresMap = new Map(
+        Array.from(courseScores.entries()).map(([courseId, data]) => [
+          courseId,
+          (data.rawScore / (maxScores.get(data.nameEn) ?? 1)) * 10 || 0,
+        ]),
+      );
       jobRelatedCourseIds = Array.from(courseScores.keys());
     }
 
@@ -113,21 +145,18 @@ export class CoursesService {
       ...(search
         ? {
             OR: [
-              {
-                nameEn: { contains: search, mode: 'insensitive' },
-              },
-              {
-                nameTh: { contains: search, mode: 'insensitive' },
-              },
-              {
-                id: { contains: search, mode: 'insensitive' },
-              },
+              { nameEn: { contains: search, mode: 'insensitive' } },
+              { nameTh: { contains: search, mode: 'insensitive' } },
+              { id: { contains: search, mode: 'insensitive' } },
             ],
           }
         : {}),
       ...(job
         ? {
-            OR: [{ nameEn: { in: jobRelatedCourseIds, mode: 'insensitive' } }],
+            OR: [
+              { nameEn: { in: jobRelatedCourseIds, mode: 'insensitive' } },
+              { nameTh: { in: jobRelatedCourseIds, mode: 'insensitive' } },
+            ],
           }
         : {}),
       sections: {
@@ -147,24 +176,24 @@ export class CoursesService {
       this.prisma.course.findMany({
         where: query,
         include: {
-          sections: {
-            where: {
-              year,
-              semester,
-            },
-            include: this.baseInclude.sections.include,
-          },
+          sections: { where: { year, semester }, include: this.baseInclude.sections.include },
         },
-        skip,
-        take: perPage,
       }),
-      this.prisma.course.count({
-        where: query,
-      }),
+      this.prisma.course.count({ where: query }),
     ]);
 
+    const coursesWithScores = courses.map(course => ({
+      course,
+      score: courseScoresMap.get(course.nameEn) ?? 0,
+    }));
+
+    const sortedCoursesWithScores = [...coursesWithScores].sort((a, b) => b.score - a.score);
+    const allSortedCourses = sortedCoursesWithScores.map(item => item.course);
+    const startIndex = (page - 1) * perPage;
+    const paginatedCourses = allSortedCourses.slice(startIndex, startIndex + perPage);
+
     return PaginateResponseDto.formatPaginationResponse({
-      data: CourseResponseDto.formatCoursesResponse(courses),
+      data: CourseResponseDto.formatCoursesResponse(paginatedCourses),
       page,
       perPage,
       total: totalCourses,
@@ -286,74 +315,28 @@ export class CoursesService {
     return courseIds.filter(courseId => !courseIdsExists.has(courseId));
   }
 
-  async searchCoursesByJobs(
-    jobSearchRequest: JobSearchRequestDto,
-  ): Promise<PaginateResponseDto<CourseResponseDto>> {
-    const { job, page = 1, perPage = 10, year, semester } = jobSearchRequest;
-    const normalizedJob = this.normalizeSearchTerm(job);
-    const jobSkillMappings = await this.getJobSkillMappings(normalizedJob);
-    const skillIds = this.extractSkillIds(jobSkillMappings);
-    const courseSkillMappings = await this.getCourseSkillMappings(skillIds);
-    const courseScores = this.calculateCourseScores(jobSkillMappings, courseSkillMappings);
-    const { courses, totalCourses } = await this.getRankedCourses(
-      courseScores,
-      page,
-      perPage,
-      year,
-      semester,
-    );
-
-    const formattedCourses = CourseResponseDto.formatCoursesResponse(courses);
-
-    return PaginateResponseDto.formatPaginationResponse({
-      data: formattedCourses,
-      page,
-      perPage,
-      total: totalCourses,
-    });
-  }
-
-  private normalizeSearchTerm(term: string): string {
-    return term;
-  }
-
-  private async getJobSkillMappings(job: string): Promise<SkillJobMapping[]> {
-    return this.prisma.skillJobMapping.findMany({
-      where: {
-        fromType: 'job',
-        from: {
-          equals: job,
-        },
-      },
-    });
-  }
-
-  private extractSkillIds(jobSkillMappings: SkillJobMapping[]): string[] {
-    return jobSkillMappings.map(mapping => mapping.to);
-  }
-
-  private async getCourseSkillMappings(skillIds: string[]): Promise<SkillCourseMapping[]> {
-    return this.prisma.skillCourseMapping.findMany({
-      where: {
-        fromType: 'skill',
-        from: { in: skillIds },
-      },
-    });
-  }
-
-  private calculateCourseScores(
+  private async calculateCourseScores(
     jobSkillMappings: SkillJobMapping[],
     courseSkillMappings: SkillCourseMapping[],
-  ): Map<string, number> {
-    const courseScores = new Map<string, number>();
+  ): Promise<Map<string, { nameEn: string; nameTh: string; rawScore: number }>> {
+    const courseScores = new Map<string, { nameEn: string; nameTh: string; rawScore: number }>();
 
     for (const jobSkill of jobSkillMappings) {
       for (const courseSkill of courseSkillMappings) {
         if (jobSkill.to === courseSkill.from) {
-          const score = jobSkill.weight * courseSkill.weight;
-          const currentScore = courseScores.get(courseSkill.to) ?? 0;
+          const normalizedJobWeight = jobSkill.weight / 5; // Normalize job weight (1-5)
+          const normalizedCourseWeight = courseSkill.weight / 5; // Normalize course weight (1-5)
+          const scoreIncrement = normalizedJobWeight * normalizedCourseWeight;
+          const current = courseScores.get(courseSkill.to) ?? {
+            nameEn: courseSkill.to,
+            nameTh: courseSkill.toTh,
+            rawScore: 0,
+          };
 
-          courseScores.set(courseSkill.to, currentScore + score);
+          courseScores.set(courseSkill.to, {
+            ...current,
+            rawScore: current.rawScore + scoreIncrement,
+          });
         }
       }
     }
@@ -361,64 +344,32 @@ export class CoursesService {
     return courseScores;
   }
 
-  private async getRankedCourses(
-    courseScores: Map<string, number>,
-    page: number,
-    perPage: number,
-    year?: number,
-    semester?: number,
-  ): Promise<{ courses: CourseWithSections[]; totalCourses: number }> {
-    const courseNames = Array.from(courseScores.keys());
-    const skip = (page - 1) * perPage;
-    // Prepare the sections filter
-    const sectionsFilter: Prisma.SectionWhereInput = {};
+  private async calculateMaxCourseScores(
+    courseSkillMappings: SkillCourseMapping[],
+  ): Promise<Map<string, number>> {
+    const maxScores = new Map<string, number>();
+    const courseGroups = courseSkillMappings.reduce((groups, mapping) => {
+      const key = mapping.to;
 
-    if (year !== undefined) {
-      sectionsFilter.year = year;
+      if (!groups.has(key)) {
+        groups.set(key, []);
+      }
+
+      groups.get(key)?.push(mapping);
+
+      return groups;
+    }, new Map<string, SkillCourseMapping[]>());
+
+    for (const [courseId, mappings] of courseGroups) {
+      const maxScore = mappings.reduce((sum, mapping) => sum + mapping.weight, 0);
+
+      maxScores.set(courseId, maxScore);
     }
 
-    if (semester !== undefined) {
-      sectionsFilter.semester = semester;
-    }
+    return maxScores;
+  }
 
-    // Fetch courses with case-insensitive name matching and include sections
-    const coursesQuery = this.prisma.course.findMany({
-      where: {
-        OR: [
-          { nameEn: { in: courseNames, mode: 'insensitive' } },
-          { nameTh: { in: courseNames, mode: 'insensitive' } },
-        ],
-      },
-      include: {
-        ...this.baseInclude,
-        sections: {
-          where: sectionsFilter,
-          ...this.baseInclude.sections,
-        },
-      },
-    });
-
-    const countQuery = this.prisma.course.count({
-      where: {
-        OR: [
-          { nameEn: { in: courseNames, mode: 'insensitive' } },
-          { nameTh: { in: courseNames, mode: 'insensitive' } },
-        ],
-      },
-    });
-
-    const [allCourses, totalCourses] = await Promise.all([coursesQuery, countQuery]);
-    // Create a new sorted array without modifying the original
-    const sortedCourses = [...allCourses].sort((a, b) => {
-      const scoreA = courseScores.get(a.nameEn) ?? courseScores.get(a.nameTh) ?? 0;
-      const scoreB = courseScores.get(b.nameEn) ?? courseScores.get(b.nameTh) ?? 0;
-
-      return scoreB - scoreA;
-    });
-
-    // Apply pagination
-    const courses = sortedCourses.slice(skip, skip + perPage);
-
-    return { courses, totalCourses };
+  private normalizeSearchTerm(term: string): string {
+    return term.trim();
   }
 }

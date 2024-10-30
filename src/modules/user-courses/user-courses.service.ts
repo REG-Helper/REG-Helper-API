@@ -340,7 +340,7 @@ export class UserCoursesService {
       .slice(0, 3);
   }
 
-  private async getJobSkillMappings(skillIds: string[]) {
+  async getJobSkillMappings(skillIds: string[]) {
     return this.prisma.skillJobMapping.findMany({
       where: {
         toType: 'skill',
