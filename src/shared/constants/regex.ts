@@ -13,4 +13,4 @@ export const USER_INFO_REGEX = {
   major: /Major\s+(.+)\n/,
 };
 
-export const COURSE_REGEX = /(\d{8})(.*?\d?)(\d)([ABCDEFWS][+]?)?/g;
+export const COURSE_REGEX = /(\d{8})(\D.*?\d?)(\d)([ABCDEFWS][+]?)?/g;
